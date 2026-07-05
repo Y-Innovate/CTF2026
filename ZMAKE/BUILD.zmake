@@ -1,0 +1,156 @@
+#* Build CTF2026 repository
+
+#* Variables for COPY source files
+cpydir      := $(gitdir)/COPY
+cpyfiles    := ${sh cd $(cpydir); +
+                    find * -prune -type f -name "*.cpy" 2>&1 | +
+                    grep -v EDC5129I}
+cpymems     := ${stripext $(cpyfiles)}
+cpylib      := $(hlq).COPY
+cpytgts     := ${addpdsname $(cpylib),$(cpymems)}
+
+#* Variables for COBOL source files
+cbldir      := $(gitdir)/COBOL
+cblfiles    := ${sh cd $(cbldir); +
+                    find * -prune -type f -name "*.cbl" 2>&1 | +
+                    grep -v EDC5129I}
+cbldb2files := ${sh cd $(cbldir); +
+                    find * -prune -type f -name "CTFM*.cbl" 2>&1 | +
+                    grep -v EDC5129I}
+cblcicsfiles := ${sh cd $(cbldir); +
+                    find * -prune -type f -name "CTFC*.cbl" 2>&1 | +
+                    grep -v EDC5129I}
+cblmems     := ${stripext $(cblfiles)}
+cbldb2mems  := ${stripext $(cbldb2files)}
+cblcicsmems := ${stripext $(cblcicsfiles)}
+cbllib      := $(hlq).COBOL
+cbltgts     := ${addpdsname $(cbllib),$(cblmems)}
+
+#* Variables for LKED source files
+lkeddir     := $(gitdir)/LKED
+lkedfiles   := ${sh cd $(lkeddir); +
+                    find * -prune -type f -name "*.lked" 2>&1 | +
+                    grep -v EDC5129I}
+lkedmems    := ${stripext $(lkedfiles)}
+lkedlib     := $(hlq).LKED
+lkedtgts    := ${addpdsname $(lkedlib),$(lkedmems)}
+
+#* Variables for OPTFILE source files
+optdir      := $(gitdir)/OPTFILE
+optfiles    := ${sh cd $(optdir); +
+                    find * -prune -type f -name "*.opt" 2>&1 | +
+                    grep -v EDC5129I}
+optmems     := ${stripext $(optfiles)}
+optlib      := $(hlq).OPTFILE
+opttgts     := ${addpdsname $(optlib),$(optmems)}
+
+#* Variables for JCL source files
+jcldir      := $(gitdir)/JCL
+jclfiles    := ${sh cd $(jcldir); +
+                    find * -prune -type f -name "*.jcl" 2>&1 |+
+                    grep -v EDC5129I}
+jclmems     := ${stripext $(jclfiles)}
+jcllib      := $(hlq).JCL
+jcltgts     := ${addpdsname $(jcllib),$(jclmems)}
+
+#* Variables for COBOL compile and link-edit
+cbllstlib   := $(hlq).COBOL.LISTING
+objlib      := $(hlq).OBJECT
+objcbldb2tgts := ${addpdsname $(objlib),$(cbldb2mems)}
+objcblcicstgts := ${addpdsname $(objlib),$(cblcicsmems)}
+dbrmlib     := $(hlq).DBRM
+lkedlstlib  := $(hlq).LKED.LISTING
+loadlib     := $(hlq).LOAD
+loadtgts    := ${addpdsname $(loadlib),$(cbldb2mems)}+
+               ${addpdsname $(loadlib),$(cblcicsmems)}
+syslib_cbl  := CEE.SCEESAMP DFH620.CICS.SDFHCOB $(cpylib)
+syslib_lked := CEE.SCEELKED DFH620.CICS.SDFHLOAD+
+               DSND10.SDSNLOAD $(objlib)
+
+#* Group of data set names with specific characteristics
+recfmFB80   := $(cpylib) $(cbllib) $(lkedlib) $(optlib) $(objlib)
+               $(dbrmlib) $(jcllib)
+recfmFBA133 := $(cbllstlib)
+recfmVBM133 := $(lkedlstlib)
+recfmU      := $(loadlib)
+
+datasets    := $(recfmFB80) $(recfmFBA133) $(recfmVBM133) $(recfmU)
+
+#* Phony target that builds all
+.PHONY BUILD_ALL
+BUILD_ALL : $(datasets) $(cpytgts) $(cbltgts) $(lkedtgts) $(opttgts)+
+            $(jcltgts) $(loadtgts)
+
+#* Phony target just to get USS copied to PDSE's
+.PHONY SETUP
+SETUP : $(datasets)
+
+#* Write COPY sources from USS to PDS
+$(cpytgts) : $(cpydir)/$%.cpy
+- CALL OGETU '$(cpydir)/$%.cpy' '$@' ISO88591
+
+#* Write COBOL sources from USS to PDS
+$(cbltgts) : $(cbldir)/$%.cbl
+- CALL OGETU '$(cbldir)/$%.cbl' '$@' ISO88591
+
+#* Write LKED sources from USS to PDS
+$(lkedtgts) : $(lkeddir)/$%.lked
+- CALL OGETU '$(lkeddir)/$%.lked' '$@' ISO88591
+
+#* Write OPTFILE sources from USS to PDS
+$(opttgts) : $(optdir)/$%.opt
+- CALL OGETU '$(optdir)/$%.opt' '$@' ISO88591
+
+#* Write JCL sources from USS to PDS
+$(jcltgts) : $(jcldir)/$%.jcl
+- CALL OGETU '$(jcldir)/$%.jcl' '$@' ISO88591
+
+#* Compile COBOL DB2 + CICS source
+$(objcbldb2tgts) : $(cbllib)($%)
+- CALL COBOL6 SYSIN($(cbllib)($%)) SYSLIN($(objlib)($%))+
+-             SYSLIB($(syslib_cbl)) SYSPRINT($(cbllstlib)($%))+
+-             SYSOPTF($(optlib)(CICSDB2)) DBRMLIB($(dbrmlib)($%))+
+-             PRINTSUCCESS(NO)
+- CALL TOUCHMEM DATASET($(objlib)($%))
+- CALL TOUCHMEM DATASET($(dbrmlib)($%))
+- CALL TOUCHMEM DATASET($(cbllstlib)($%))
+
+#* Compile COBOL CICS source
+$(objcblcicstgts) : $(cbllib)($%)
+- CALL COBOL6 SYSIN($(cbllib)($%)) SYSLIN($(objlib)($%))+
+-             SYSLIB($(syslib_cbl)) SYSPRINT($(cbllstlib)($%))+
+-             SYSOPTF($(optlib)(CICS)) PRINTSUCCESS(NO)
+- CALL TOUCHMEM DATASET($(objlib)($%))
+- CALL TOUCHMEM DATASET($(cbllstlib)($%))
+
+#* Link-edit COBOL object if needed
+$(loadtgts) : $(objlib)($%) $(lkedlib)($%)
+- CALL LKED SYSLIN($(lkedlib)($%)) SYSLMOD($(loadlib)($%))+
+-           SYSLIB($(syslib_lked)) SYSPRINT($(lkedlstlib)($%))+
+-           PARM(LIST,XREF,RENT,REUS) PRINTSUCCESS(NO)
+- CALL TOUCHMEM DATASET($(lkedlstlib)($%))
+
+#* Allocate LRECL=80 RECFM=FB data sets
+$(recfmFB80) :
+- CALL TSOCMD ALLOC DATASET('$@') NEW RECFM(F,B) LRECL(80)+
+-             CYLINDERS SPACE(1,1) DSORG(PO) DSNTYPE(LIBRARY)
+- CALL TSOCMD FREE DATASET('$@')
+
+#* Allocate LRECL=133 RECFM=FBA data sets
+$(recfmFBA133) :
+- CALL TSOCMD ALLOC DATASET('$@') NEW RECFM(F,B,A) LRECL(133)+
+-             CYLINDERS SPACE(1,1) DSORG(PO) DSNTYPE(LIBRARY)
+- CALL TSOCMD FREE DATASET('$@')
+
+#* Allocate LRECL=133 RECFM=VBM data sets
+$(recfmVBM133) :
+- CALL TSOCMD ALLOC DATASET('$@') NEW RECFM(V,B,M) LRECL(133)+
+-             CYLINDERS SPACE(1,1) DSORG(PO) DSNTYPE(LIBRARY)
+- CALL TSOCMD FREE DATASET('$@')
+
+#* Allocate LRECL=0 RECFM=U data sets
+$(recfmU) :
+- CALL TSOCMD ALLOC DATASET('$@') NEW RECFM(U) LRECL(0)+
+-             BLKSIZE(32760) CYLINDERS SPACE(1,1) DSORG(PO)+
+-             DSNTYPE(LIBRARY)
+- CALL TSOCMD FREE DATASET('$@')
