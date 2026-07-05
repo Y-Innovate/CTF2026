@@ -69,7 +69,7 @@ def createDir(someDir, id, parentId, custom):
     data['folderId'] = ""
     data['parentFolderId'] = parentId
     data['folderName'] = x.group(1)
-    data['path'] = f"/LWWAPI/{someDir[n:]}"
+    data['path'] = f"/CTF2026/{someDir[n:]}"
     data['generateId'] = "Y"
     data['defaultTran'] = ""
     data['defaultWebpageId'] = ""
@@ -103,7 +103,7 @@ def updateDir(someDir, id, parentId, custom):
     data['folderId'] = id
     data['parentFolderId'] = parentId
     data['folderName'] = x.group(1)
-    data['path'] = f"/LWWAPI/{someDir[n:]}"
+    data['path'] = f"/CTF2026/{someDir[n:]}"
     data['generateId'] = "N"
     data['defaultTran'] = ""
     data['defaultWebpageId'] = ""
@@ -336,8 +336,8 @@ def doDir(someDir, parentId, folderHash):
             else:
                 # print(d['dir'])
 
-                if d['dir'] in neededDirs:
-                    doDir(f"{someDir}/{d['folderName']}", d['folderId'], d['hash'])
+                # if d['dir'] in neededDirs:
+                doDir(f"{someDir}/{d['folderName']}", d['folderId'], d['hash'])
 
                 if d['hash'] != found:
                     updateDir(f"{someDir}/{d['folderName']}", d['folderId'], parentId, d['hash'])
