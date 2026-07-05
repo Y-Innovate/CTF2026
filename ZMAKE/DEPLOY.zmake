@@ -1,0 +1,124 @@
+#* Deploy CTF2026 repository
+
+#* Source and target libs for COBOL and related
+srccbllib     := $(srchlq).COBOL
+tgtcbllib     := $(tgthlq).COBOL
+
+srccbllstlib  := $(srchlq).COBOL.LISTING
+tgtcbllstlib  := $(tgthlq).COBOL.LISTING
+
+srcdbrmlib    := $(srchlq).DBRM
+tgtdbrmlib    := $(tgthlq).DBRM
+
+srclkedlib    := $(srchlq).LKED
+tgtlkedlib    := $(tgthlq).LKED
+
+srclkedlstlib := $(srchlq).LKED.LISTING
+tgtlkedlstlib := $(tgthlq).LKED.LISTING
+
+srcloadlib    := $(srchlq).LOAD
+tgtloadlib    := $(tgthlq).LOAD
+
+srcjcllib     := $(srchlq).JCL
+tgtjcllib     := $(tgthlq).JCL
+
+#* Build target lists
+cblmems       := ${memberlist $(srccbllib)}
+cbltgts       := ${addpdsname $(tgtcbllib),$(cblmems)}
+
+cbllstmems    := ${memberlist $(srccbllstlib)}
+cbllsttgts    := ${addpdsname $(tgtcbllstlib),$(cbllstmems)}
+
+dbrmmems      := ${memberlist $(srcdbrmlib)}
+dbrmtgts      := ${addpdsname $(tgtdbrmlib),$(dbrmmems)}
+
+lkedmems      := ${memberlist $(srclkedlib)}
+lkedtgts      := ${addpdsname $(tgtlkedlib),$(lkedmems)}
+
+lkedlstmems   := ${memberlist $(srclkedlstlib)}
+lkedlsttgts   := ${addpdsname $(tgtlkedlstlib),$(lkedlstmems)}
+
+loadmems      := ${memberlist $(srcloadlib)}
+loaddb2mems   := ${memberlist $(srcloadlib),CTFM}
+loaddb2tgts   := ${addpdsname $(tgtloadlib),$(loaddb2mems)}
+loadothmems   := ${function NOTIN SET1($(loadmems))+
+                                  SET2($(loaddb2mems))}
+loadothtgts   := ${addpdsname $(tgtloadlib),$(loadothmems)}
+
+jclmems       := ${memberlist $(srcjcllib)}
+jcltgts       := ${addpdsname $(tgtjcllib),$(jclmems)}
+
+#* Data sets grouped by characteristics
+recfmFB80     := $(tgtcbllib) $(tgtdbrmlib) $(tgtlkedlib) $(tgtjcllib)
+recfmFBA133   := $(tgtcbllstlib)
+recfmVBM133   := $(tgtlkedlstlib)
+recfmU        := $(tgtloadlib)
+
+datasets      := $(recfmFB80) $(recfmFBA133) $(recfmVBM133) $(recfmU)
+
+#* Combine targets
+.PHONY DEPLOY_ALL
+DEPLOY_ALL : $(datasets) $(cbltgts) $(cbllsttgts) $(dbrmtgts)+
+             $(lkedtgts) $(lkedlsttgts) $(loaddb2tgts) $(loadothtgts)+
+             $(jcltgts)
+
+#* Build targets
+$(cbltgts) : $(srccbllib)($%)
+- CALL IEBCOPY PDSIN($(srccbllib)) PDSOUT($(tgtcbllib))+
+-              MEMBER($%) PRINTSUCCESS(NO)
+
+$(cbllsttgts) : $(srccbllstlib)($%)
+- CALL IEBCOPY PDSIN($(srccbllstlib)) PDSOUT($(tgtcbllstlib))+
+-              MEMBER($%) PRINTSUCCESS(NO)
+
+$(dbrmtgts) : $(srcdbrmlib)($%)
+- CALL IEBCOPY PDSIN($(srcdbrmlib)) PDSOUT($(tgtdbrmlib))+
+               MEMBER($%) PRINTSUCCESS(NO)
+
+$(lkedtgts) : $(srclkedlib)($%)
+- CALL IEBCOPY PDSIN($(srclkedlib)) PDSOUT($(tgtlkedlib))+
+-              MEMBER($%) PRINTSUCCESS(NO)
+
+$(lkedlsttgts) : $(srclkedlstlib)($%)
+- CALL IEBCOPY PDSIN($(srclkedlstlib)) PDSOUT($(tgtlkedlstlib))+
+-              MEMBER($%) PRINTSUCCESS(NO)
+
+$(loadothtgts) : $(srcloadlib)($%)
+- CALL IEBCOPY PDSIN($(srcloadlib)) PDSOUT($(tgtloadlib))+
+-              MEMBER($%) PRINTSUCCESS(NO)
+
+$(loaddb2tgts) : $(srcloadlib)($%)
+- CALL IEBCOPY PDSIN($(srcloadlib)) PDSOUT($(tgtloadlib))+
+-              MEMBER($%) PRINTSUCCESS(NO)
+- CALL BIND SYSTEM(DBDG) PACKAGE(CTF2026) MEMBER($%)+
+-           OWNER(CTF2026) QUALIFIER(CTF2026)+
+-           LIBRARY('$(tgtdbrmlib)')
+
+$(jcltgts) : $(srcjcllib)($%)
+- CALL UNIXCMD0 $(gitdir)/python/profilePDS.sh $(srcjcllib) +
+-               $(tgtjcllib) $% $(gitdir)/envs/$(envl).yaml
+- CALL TOUCHMEM DATASET($@)
+
+#* Allocate LRECL=80 RECFM=FB data sets
+$(recfmFB80) :
+- CALL TSOCMD ALLOC DATASET('$@') NEW RECFM(F,B) LRECL(80)+
+-             CYLINDERS SPACE(1,1) DSORG(PO) DSNTYPE(LIBRARY)
+- CALL TSOCMD FREE DATASET('$@')
+
+#* Allocate LRECL=133 RECFM=FBA data sets
+$(recfmFBA133) :
+- CALL TSOCMD ALLOC DATASET('$@') NEW RECFM(F,B,A) LRECL(133)+
+-             CYLINDERS SPACE(1,1) DSORG(PO) DSNTYPE(LIBRARY)
+- CALL TSOCMD FREE DATASET('$@')
+
+#* Allocate LRECL=133 RECFM=VBM data sets
+$(recfmVBM133) :
+- CALL TSOCMD ALLOC DATASET('$@') NEW RECFM(V,B,M) LRECL(133)+
+-             CYLINDERS SPACE(1,1) DSORG(PO) DSNTYPE(LIBRARY)
+- CALL TSOCMD FREE DATASET('$@')
+
+#* Allocate LRECL=0 RECFM=U data sets
+$(recfmU) :
+- CALL TSOCMD ALLOC DATASET('$@') NEW RECFM(U) LRECL(0)+
+-             BLKSIZE(32760) CYLINDERS SPACE(1,1) DSORG(PO)+
+-             DSNTYPE(LIBRARY)
