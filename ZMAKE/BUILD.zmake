@@ -20,6 +20,10 @@ cbldb2files := ${sh cd $(cbldir); +
 cblcicsfiles := ${sh cd $(cbldir); +
                     find * -prune -type f -name "CTFC*.cbl" 2>&1 | +
                     grep -v EDC5129I}
+cblcicsfiles := $(cblcicsfiles) +
+                ${sh cd $(cbldir); +
+                    find * -prune -type f -name "CTFW*.cbl" 2>&1 | +
+                    grep -v EDC5129I}
 cblmems     := ${stripext $(cblfiles)}
 cbldb2mems  := ${stripext $(cbldb2files)}
 cblcicsmems := ${stripext $(cblcicsfiles)}
