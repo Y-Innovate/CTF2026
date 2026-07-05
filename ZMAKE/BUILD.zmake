@@ -68,7 +68,7 @@ syslib_lked := CEE.SCEELKED DFH620.CICS.SDFHLOAD+
                DSND10.SDSNLOAD $(objlib)
 
 #* Group of data set names with specific characteristics
-recfmFB80   := $(cpylib) $(cbllib) $(lkedlib) $(optlib) $(objlib)
+recfmFB80   := $(cpylib) $(cbllib) $(lkedlib) $(optlib) $(objlib)+
                $(dbrmlib) $(jcllib)
 recfmFBA133 := $(cbllstlib)
 recfmVBM133 := $(lkedlstlib)
