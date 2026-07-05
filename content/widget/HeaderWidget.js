@@ -16,7 +16,7 @@ define([
             {text:"> assigning service class to started task...", cls:"corrupt"},
             {text:"> scanning ISPF table...", cls:"amber"},
             {text:"> generating SVC dump, analyzing with IPCS...", cls:"corrupt"},
-            {text:"> re-IPL not needed. good luck, investigator.", cls:"amber"},
+            {text:"> re-IPL not needed. good luck, detective.", cls:"amber"},
         ],
         lineIdx: 0,
         charIdx: 0,

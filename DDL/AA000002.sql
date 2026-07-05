@@ -1,4 +1,4 @@
--- Create storage group for petstore database.
+-- Create storage group for CTF2026 database.
 
 -- Set SQLID
    SET CURRENT SQLID='CTF2026';
