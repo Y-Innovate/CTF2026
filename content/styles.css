@@ -69,7 +69,7 @@ html,body{
 }
 
 /* ---------- header / boot ---------- */
-header{
+.header{
     border:1px solid var(--line);
     border-radius:var(--radius);
     padding:clamp(14px,3vw,22px);
