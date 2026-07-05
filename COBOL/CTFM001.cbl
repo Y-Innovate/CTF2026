@@ -338,7 +338,7 @@
            EXEC SQL
               DELETE
                 FROM DETECTIV
-               WHERE TABLEID = :DCLDETECTIV.USERID
+               WHERE USERID = :DCLDETECTIV.USERID
            END-EXEC
 
            MOVE SQLCODE TO W-SQLCODE
@@ -368,7 +368,7 @@
       * R210-COPY-TO-DCL: Copy from copybook to DCLDETECTIV           *
       *===============================================================*
        R210-COPY-TO-DCL SECTION.
-           MOVE USERID OF W-LCTFM001 TO TABLEID OF DCLDETECTIV
+           MOVE USERID OF W-LCTFM001 TO USERID OF DCLDETECTIV
            MOVE NICKNAME-LEN OF W-LCTFM001 TO
                 NICKNAME-LEN OF DCLDETECTIV
            IF NICKNAME-LEN OF W-LCTFM001 > 0
