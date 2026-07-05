@@ -187,4 +187,4 @@
            .
        R930-PUT-CONTAINER-END.
            EXIT.
-       END PROGRAM CTFC001.
+       END PROGRAM CTFW001.
