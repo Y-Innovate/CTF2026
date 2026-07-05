@@ -119,7 +119,8 @@
               AND NICKNAME-LEN OF W-LCTFM001 = 0
                  MOVE N'08' TO RETURNCODE OF W-LCTFM001
                  MOVE N'03' TO REASONCODE OF W-LCTFM001
-                 MOVE N'NICKNAME is required' TO INFOMESSAGE OF W-LCTFM001
+                 MOVE N'NICKNAME is required' TO
+                      INFOMESSAGE OF W-LCTFM001
               END-IF
 
               IF CREATEDBY OF W-LCTFM001 = SPACES
