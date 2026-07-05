@@ -95,9 +95,8 @@ $(loaddb2tgts) : $(srcloadlib)($%)
 -           LIBRARY('$(tgtdbrmlib)')
 
 $(jcltgts) : $(srcjcllib)($%)
-- CALL UNIXCMD0 $(gitdir)/python/profilePDS.sh $(srcjcllib) +
--               $(tgtjcllib) $% $(gitdir)/envs/$(envl).yaml
-- CALL TOUCHMEM DATASET($@)
+- CALL IEBCOPY PDSIN($(srcjcllib)) PDSOUT($(tgtjcllib))+
+-              MEMBER($%) PRINTSUCCESS(NO)
 
 #* Allocate LRECL=80 RECFM=FB data sets
 $(recfmFB80) :
