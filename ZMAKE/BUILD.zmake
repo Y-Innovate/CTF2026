@@ -109,7 +109,7 @@ $(jcltgts) : $(jcldir)/$%.jcl
 $(objcbldb2tgts) : $(cbllib)($%)
 - CALL COBOL6 SYSIN($(cbllib)($%)) SYSLIN($(objlib)($%))+
 -             SYSLIB($(syslib_cbl)) SYSPRINT($(cbllstlib)($%))+
--             SYSOPTF($(optlib)(CICSDB2)) DBRMLIB($(dbrmlib)($%))+
+-             SYSOPTF($(optlib)(DB2CICS)) DBRMLIB($(dbrmlib)($%))+
 -             PRINTSUCCESS(NO)
 - CALL TOUCHMEM DATASET($(objlib)($%))
 - CALL TOUCHMEM DATASET($(dbrmlib)($%))
