@@ -31,7 +31,7 @@ with open("ZMAKE/BUILD.zmake", "r") as file:
 data = {
     "target": "BUILD_ALL",
     "homedir": Path.home(),
-    "hlq": f"{os.getlogin()}.PETSHOP",
+    "hlq": f"{os.getlogin()}.CTF2026",
     "version": "V1",
     "gitdir": os.getcwd(),
     "zmake_file": zmake_file
