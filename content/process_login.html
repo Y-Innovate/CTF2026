@@ -1,0 +1,12 @@
+<% INCLUDE(default_header.html) %>
+<div id="div_main">
+Processing complete, this page should automatically redirect to index.html.<br />
+</div>
+<script type="text/javascript">
+if ("&NEXTPAGE;" == "true") {
+  window.location.href = "index.html";
+} else {
+  window.location.href = "changePassword.html";
+}
+</script>
+<% INCLUDE(default_footer.html) %>
