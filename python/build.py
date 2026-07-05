@@ -17,8 +17,7 @@ template_src = '''//BUILD    JOB 'BUILD',CLASS=A,MSGCLASS=A,NOTIFY=&SYSUID
 //             DYNAMNBR.ZMAKE=100
 //ZMAKE.LWZMINP DD *,SYMBOLS=EXECSYS
 .USSHOME = {{ homedir }}
-version := {{ version }}
-hlq := {{ hlq }}.{{ version }}
+hlq := {{ hlq }}
 gitdir := {{ gitdir }}
 
 {{ zmake_file }}'''
@@ -32,7 +31,6 @@ data = {
     "target": "BUILD_ALL",
     "homedir": Path.home(),
     "hlq": f"{os.getlogin()}.CTF2026",
-    "version": "V1",
     "gitdir": os.getcwd(),
     "zmake_file": zmake_file
 }
