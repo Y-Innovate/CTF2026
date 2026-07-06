@@ -10,7 +10,6 @@ define([
         baseClass: "headerWidget",
         templateString: template,
         title: "",
-        originalAPI: null,
         bootLines: [
             {text:"> adding application to current plan...", cls:"amber"},
             {text:"> assigning service class to started task...", cls:"corrupt"},
