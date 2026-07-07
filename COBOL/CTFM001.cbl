@@ -122,27 +122,6 @@
                  MOVE N'NICKNAME is required' TO
                       INFOMESSAGE OF W-LCTFM001
               END-IF
-
-              IF CREATEDBY OF W-LCTFM001 = SPACES
-              OR CREATEDBY OF W-LCTFM001 = LOW-VALUES
-              OR UPDATEDBY OF W-LCTFM001 = SPACES
-              OR UPDATEDBY OF W-LCTFM001 = LOW-VALUES
-                 EXEC CICS
-                    ASSIGN USERID(W-USERID)
-                 END-EXEC
-
-                 IF CREATEDBY OF W-LCTFM001 = SPACES
-                 OR CREATEDBY OF W-LCTFM001 = LOW-VALUES
-                    MOVE FUNCTION NATIONAL-OF(W-USERID) TO
-                         CREATEDBY OF W-LCTFM001
-                 END-IF
-
-                 IF UPDATEDBY OF W-LCTFM001 = SPACES
-                 OR UPDATEDBY OF W-LCTFM001 = LOW-VALUES
-                    MOVE FUNCTION NATIONAL-OF(W-USERID) TO
-                         UPDATEDBY OF W-LCTFM001
-                 END-IF
-              END-IF
            END-IF
            .
        R002-CHECKPARM-END.

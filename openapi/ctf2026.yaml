@@ -57,6 +57,145 @@ paths:
         - JSONWriter:
             responseObject:
               $ref: "#/paths/~1loginInfo/get/x-LWWProcessingSteps/2/CreateObject"
+  /detectives:
+    summary: Manage detectives
+    post:
+      summary: Add new detective
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DetectivesCRUDLong"
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+        default:
+          description: Unexpected error
+      x-LWWProcessingSteps:
+        - AllocateIOArea:
+            name: LCTFM001
+            initWith: 0x00
+            size: 822
+            fields:
+              $ref: "#/components/x-ioareas/LCTFM001/fields"
+        - ParseRequestJSON:
+            name: LCTFC001_POST_JSNR
+        - Mapping:
+            from:
+              $ref: "#/paths/~1detectives/post/x-LWWProcessingSteps/1/ParseRequestJSON"
+            to:
+              $ref: "#/paths/~1detectives/post/x-LWWProcessingSteps/0/AllocateIOArea/fields"
+            combinations:
+              - type: singleFields
+                fromName: userid
+                toName: USERID
+              - type: singleFields
+                fromName: nickname
+                toName: NICKNAME
+              - type: singleFields
+                fromName: email
+                toName: EMAIL
+              - type: constant
+                constant: C
+                toName: OPCODE
+              - type: generated
+                genEnum: 1
+                toName: CREATEDBY
+              - type: generated
+                genEnum: 2
+                toName: CREATEDDATE
+              - type: generated
+                genEnum: 1
+                toName: UPDATEDBY
+              - type: generated
+                genEnum: 2
+                toName: UPDATEDDATE
+        - Link:
+            program: CTFC001
+            passDataWith: container
+            ioArea:
+              $ref: "#/paths/~1detectives/post/x-LWWProcessingSteps/0/AllocateIOArea"
+        - Condition:
+            name: LCTFC001_POST_OK
+            source:
+              $ref: "#/paths/~1detectives/post/x-LWWProcessingSteps/0/AllocateIOArea/fields"
+            boolOperator: AND
+            expressions:
+              - type: fieldEqualsConstant
+                fieldName: RETURNCODE
+                constant: "00"
+            LWWProcessingStepsWhenTrue:
+              - CreateObject:
+                  name: CTFM001_POST_RET_OK
+                  properties:
+                    $ref: "#/components/schemas/DetectivesCRUDLong/properties"
+              - Mapping:
+                  from:
+                    $ref: "#/paths/~1detectives/post/x-LWWProcessingSteps/0/AllocateIOArea/fields"
+                  to:
+                    $ref: "#/paths/~1detectives/post/x-LWWProcessingSteps/4/Condition/LWWProcessingStepsWhenTrue/0/CreateObject/properties"
+                  combinations:
+                    - type: singleFields
+                      fromName: RETURNCODE
+                      toName: returnCode
+                    - type: singleFields
+                      fromName: REASONCODE
+                      toName: reasonCode
+                    - type: singleFields
+                      fromName: INFOMESSAGE
+                      toName: infoMessage
+                    - type: singleFields
+                      fromName: USERID
+                      toName: userid
+                    - type: singleFields
+                      fromName: NICKNAME
+                      toName: nickname
+                    - type: singleFields
+                      fromName: EMAIL
+                      toName: email
+                    - type: singleFields
+                      fromName: CREATEDBY
+                      toName: createdBy
+                    - type: singleFields
+                      fromName: CREATEDDATE
+                      toName: createdDate
+                    - type: singleFields
+                      fromName: UPDATEDBY
+                      toName: updatedBy
+                    - type: singleFields
+                      fromName: UPDATEDDATE
+                      toName: updatedDate
+              - JSONWriter:
+                  responseObject:
+                    $ref: "#/paths/~1detectives/post/x-LWWProcessingSteps/4/Condition/LWWProcessingStepsWhenTrue/0/CreateObject"
+            LWWProcessingStepsWhenFalse:
+              - CreateObject:
+                  name: CTFC001_POST_RET_ERR
+                  properties:
+                    $ref: "#/components/schemas/DetectivesCRUDShort/properties"
+              - Mapping:
+                  from:
+                    $ref: "#/paths/~1detectives/post/x-LWWProcessingSteps/0/AllocateIOArea/fields"
+                  to:
+                    $ref: "#/paths/~1detectives/post/x-LWWProcessingSteps/4/Condition/LWWProcessingStepsWhenFalse/0/CreateObject/properties"
+                  combinations:
+                    - type: singleFields
+                      fromName: RETURNCODE
+                      toName: returnCode
+                    - type: singleFields
+                      fromName: REASONCODE
+                      toName: reasonCode
+                    - type: singleFields
+                      fromName: INFOMESSAGE
+                      toName: infoMessage
+              - JSONWriter:
+                  responseObject:
+                    $ref: "#/paths/~1detectives/post/x-LWWProcessingSteps/4/Condition/LWWProcessingStepsWhenFalse/0/CreateObject"
   /token:
     summary: Retrieve access token
     post:
@@ -130,6 +269,38 @@ components:
           type: string
         nickname:
           type: string
+    DetectivesCRUDLong:
+      type: object
+      properties:
+        returnCode:
+          type: string
+        reasonCode:
+          type: string
+        infoMessage:
+          type: string
+        userid:
+          type: string
+        nickname:
+          type: string
+        email:
+          type: string
+        createdBy:
+          type: string
+        createdDate:
+          type: string
+        updatedBy:
+          type: string
+        updatedDate:
+          type: string
+    DetectivesCRUDShort:
+      type: object
+      properties:
+        returnCode:
+          type: string
+        reasonCode:
+          type: string
+        infoMessage:
+          type: string
     TokenResponse:
       type: object
       properties:
@@ -144,6 +315,41 @@ components:
         - name: NICKNAME
           type: VARCHAR1200
           length: 128
+    LCTFM001:
+      fields:
+        - name: OPCODE
+          type: CHARARRAY1200
+          length: 1
+        - name: RETURNCODE
+          type: CHARARRAY1200
+          length: 02
+        - name: REASONCODE
+          type: CHARARRAY1200
+          length: 02
+        - name: INFOMESSAGE
+          type: CHARARRAY1200
+          length: 72
+        - name: USERID
+          type: CHARARRAY1200
+          length: 08
+        - name: NICKNAME
+          type: VARCHAR1200
+          length: 128
+        - name: EMAIL
+          type: VARCHAR1200
+          length: 128
+        - name: CREATEDBY
+          type: CHARARRAY1200
+          length: 08
+        - name: CREATEDDATE
+          type: CHARARRAY1200
+          length: 26
+        - name: UPDATEDBY
+          type: CHARARRAY1200
+          length: 08
+        - name: UPDATEDDATE
+          type: CHARARRAY1200
+          length: 26
     LWWADPLI:
       fields:
         - name: USERNAME
