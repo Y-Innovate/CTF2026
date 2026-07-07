@@ -109,11 +109,11 @@ $(opttgts) : $(optdir)/$%.opt
 $(jcltgts) : $(jcldir)/$%.jcl
 - CALL OGETU '$(jcldir)/$%.jcl' '$@' ISO88591
 
-#* Compile COBOL DB2 + CICS source
+#* Compile COBOL DB2 source
 $(objcbldb2tgts) : $(cbllib)($%)
 - CALL COBOL6 SYSIN($(cbllib)($%)) SYSLIN($(objlib)($%))+
 -             SYSLIB($(syslib_cbl)) SYSPRINT($(cbllstlib)($%))+
--             SYSOPTF($(optlib)(DB2CICS)) DBRMLIB($(dbrmlib)($%))+
+-             SYSOPTF($(optlib)(DB2)) DBRMLIB($(dbrmlib)($%))+
 -             PRINTSUCCESS(NO)
 - CALL TOUCHMEM DATASET($(objlib)($%))
 - CALL TOUCHMEM DATASET($(dbrmlib)($%))

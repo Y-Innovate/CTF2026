@@ -23,7 +23,30 @@ define([
                 if (this.inputNickname.value == "") {
                     this.feedback1.innerText = "Nickname is mandatory";
                 } else {
-                    console.log("REST call goes here");
+                    var reqData = {
+                        userid: this.spanUserid.innerText,
+                        nickname: this.inputNickname.value,
+                        email: this.inputEmail.value
+                    };
+                    
+                    reqData = JSON.stringify(reqData);
+                    
+                    xhr.post("API/v1/detectives", {
+                        handleAs: "json",
+                        data: reqData,
+                        sync: true
+                    }).then(lang.hitch(this, function (data) {
+                        if (data && data.returnCode && data.returnCode == "00") {
+                            console.log("yep");
+                        } else {
+                            if (data && data.returnCode) {
+                                alert("API/v1/detectives gave retcode " + data.returnCode + " " + data.reasonCode + " " + data.infoMessage);
+                            }
+                            console.log(data);
+                        }
+                    }), function (err) {
+                        console.log(err);
+                    });
                 }
 
                 this.buttonTransmit.disabled = false;
@@ -34,7 +57,9 @@ define([
                 preventCache: true,
                 sync: true
             }).then(lang.hitch(this, function(data) {
-                console.log(data);
+                if (data && data.userid) {
+                    this.spanUserid.innerText = data.userid;
+                }
             }), lang.hitch(this, function(err) {
                 console.log(err);
             }));
