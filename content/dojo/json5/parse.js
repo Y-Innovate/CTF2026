@@ -94,12 +94,12 @@ case "\t":
 case "\v":
 case "\f":
 case " ":
-case " ":
-case "﻿":
+case "Â ":
+case "ï»¿":
 case "\n":
 case "\r":
-case " ":
-case " ":
+case "â¨":
+case "â©":
 _1f();
 return;
 case "/":
@@ -155,8 +155,8 @@ _18="multiLineComment";
 switch(c){
 case "\n":
 case "\r":
-case " ":
-case " ":
+case "â¨":
+case "â©":
 _1f();
 _18="default";
 return;
@@ -247,8 +247,8 @@ _18="identifierName";
 switch(c){
 case "$":
 case "_":
-case "‌":
-case "‍":
+case "â":
+case "â":
 _19+=_1f();
 return;
 case "\\":
@@ -270,8 +270,8 @@ var u=_23();
 switch(u){
 case "$":
 case "_":
-case "‌":
-case "‍":
+case "â":
+case "â":
 break;
 default:
 if(!_2.isIdContinueChar(u)){
@@ -445,8 +445,8 @@ return;
 case "\n":
 case "\r":
 throw _21(_1f());
-case " ":
-case " ":
+case "â¨":
+case "â©":
 _26(c);
 break;
 case undefined:
@@ -561,8 +561,8 @@ case "u":
 _1f();
 return _23();
 case "\n":
-case " ":
-case " ":
+case "â¨":
+case "â©":
 _1f();
 return "";
 case "\r":
@@ -753,7 +753,7 @@ function _26(c){
 console.warn("JSON5: '"+_35(c)+"' in strings is not valid ECMAScript; consider escaping");
 };
 function _35(c){
-var _36={"'":"\\'","\"":"\\\"","\\":"\\\\","\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t","\v":"\\v","\x00":"\\0"," ":"\\u2028"," ":"\\u2029"};
+var _36={"'":"\\'","\"":"\\\"","\\":"\\\\","\b":"\\b","\f":"\\f","\n":"\\n","\r":"\\r","\t":"\\t","\v":"\\v","\x00":"\\0","â¨":"\\u2028","â©":"\\u2029"};
 if(_36[c]){
 return _36[c];
 }

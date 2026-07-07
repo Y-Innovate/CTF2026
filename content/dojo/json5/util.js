@@ -11,7 +11,7 @@ return typeof c==="string"&&_1.Space_Separator.test(c);
 },isIdStartChar:function(c){
 return typeof c==="string"&&((c>="a"&&c<="z")||(c>="A"&&c<="Z")||(c==="$")||(c==="_")||_1.ID_Start.test(c));
 },isIdContinueChar:function(c){
-return typeof c==="string"&&((c>="a"&&c<="z")||(c>="A"&&c<="Z")||(c>="0"&&c<="9")||(c==="$")||(c==="_")||(c==="‌")||(c==="‍")||_1.ID_Continue.test(c));
+return typeof c==="string"&&((c>="a"&&c<="z")||(c>="A"&&c<="Z")||(c>="0"&&c<="9")||(c==="$")||(c==="_")||(c==="â")||(c==="â")||_1.ID_Continue.test(c));
 },isDigit:function(c){
 return typeof c==="string"&&/[0-9]/.test(c);
 },isHexDigit:function(c){
