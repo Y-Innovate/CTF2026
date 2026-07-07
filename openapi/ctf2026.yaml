@@ -32,7 +32,7 @@ paths:
             initWith: 0x00
             size: 272
             fields:
-              $ref: "#/components/x-ioareas/LCTFC100"
+              $ref: "#/components/x-ioareas/LCTFC100/fields"
         - Link:
             program: CTFC100
             passDataWith: container
