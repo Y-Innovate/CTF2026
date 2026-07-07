@@ -30,7 +30,7 @@ paths:
         - AllocateIOArea:
             name: LCTFC100
             initWith: 0x00
-            size: 272
+            size: 274
             fields:
               $ref: "#/components/x-ioareas/LCTFC100/fields"
         - Link:
