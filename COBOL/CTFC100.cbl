@@ -124,11 +124,7 @@
                       NICKNAME-TEXT OF W-LCTFC100
               END-IF
            ELSE
-              IF RETURNCODE OF W-LCTFM001 = N'04'
-                 MOVE 404 TO STSCODE OF W-LINKPAR
-                 MOVE 9   TO STSTXTL OF W-LINKPAR
-                 MOVE 'Not Found' TO STSTXTT OF W-LINKPAR
-              ELSE
+              IF RETURNCODE OF W-LCTFM001 NOT = N'04'
                  MOVE 500 TO STSCODE OF W-LINKPAR
                  MOVE 21  TO STSTXTL OF W-LINKPAR
                  MOVE 'Internal Server Error' TO STSTXTT OF W-LINKPAR
