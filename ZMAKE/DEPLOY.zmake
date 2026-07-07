@@ -22,6 +22,16 @@ tgtloadlib    := $(tgthlq).LOAD
 srcjcllib     := $(srchlq).JCL
 tgtjcllib     := $(tgthlq).JCL
 
+#* Other source and target libs
+tgtddllib     := $(tgthlq).DDL
+
+ddldir        := $(gitdir)/DDL
+ddlfiles      := ${sh cd $(gitdir)/DDL; +
+                      find * -prune -type f -name "*.sql" 2>&1 | +
+                      grep -v EDC5129I}
+ddlmems       := ${stripext $(ddlfiles)}
+ddltgts       := ${addpdsname $(tgtddllib),$(ddlmems)}
+
 #* Build target lists
 cblmems       := ${memberlist $(srccbllib)}
 cbltgts       := ${addpdsname $(tgtcbllib),$(cblmems)}
@@ -49,7 +59,8 @@ jclmems       := ${memberlist $(srcjcllib)}
 jcltgts       := ${addpdsname $(tgtjcllib),$(jclmems)}
 
 #* Data sets grouped by characteristics
-recfmFB80     := $(tgtcbllib) $(tgtdbrmlib) $(tgtlkedlib) $(tgtjcllib)
+recfmFB80     := $(tgtddllib) $(tgtcbllib) $(tgtdbrmlib) $(tgtlkedlib)+
+                 $(tgtjcllib)
 recfmFBA133   := $(tgtcbllstlib)
 recfmVBM133   := $(tgtlkedlstlib)
 recfmU        := $(tgtloadlib)
@@ -58,9 +69,9 @@ datasets      := $(recfmFB80) $(recfmFBA133) $(recfmVBM133) $(recfmU)
 
 #* Combine targets
 .PHONY DEPLOY_ALL
-DEPLOY_ALL : $(datasets) $(cbltgts) $(cbllsttgts) $(dbrmtgts)+
-             $(lkedtgts) $(lkedlsttgts) $(loaddb2tgts) $(loadothtgts)+
-             $(jcltgts)
+DEPLOY_ALL : $(datasets) $(ddltgts) $(cbltgts) $(cbllsttgts)+
+             $(dbrmtgts) $(lkedtgts) $(lkedlsttgts) $(loaddb2tgts)+
+             $(loadothtgts) $(jcltgts)
 
 #* Build targets
 $(cbltgts) : $(srccbllib)($%)
@@ -90,9 +101,12 @@ $(loadothtgts) : $(srcloadlib)($%)
 $(loaddb2tgts) : $(srcloadlib)($%)
 - CALL IEBCOPY PDSIN($(srcloadlib)) PDSOUT($(tgtloadlib))+
 -              MEMBER($%) PRINTSUCCESS(NO)
-- CALL BIND SYSTEM(DBDG) PACKAGE(CTF2026) MEMBER($%)+
+- CALL BIND SYSTEM(DBY1) PACKAGE(CTF2026) MEMBER($%)+
 -           OWNER(CTF2026) QUALIFIER(CTF2026)+
 -           LIBRARY('$(tgtdbrmlib)')
+
+$(ddltgts) : $(gitdir)/DDL/$%.sql
+- CALL OGETU '$(gitdir)/DDL/$%.sql' '$@' ISO88591
 
 $(jcltgts) : $(srcjcllib)($%)
 - CALL IEBCOPY PDSIN($(srcjcllib)) PDSOUT($(tgtjcllib))+

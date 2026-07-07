@@ -67,9 +67,9 @@ lkedlstlib  := $(hlq).LKED.LISTING
 loadlib     := $(hlq).LOAD
 loadtgts    := ${addpdsname $(loadlib),$(cbldb2mems)}+
                ${addpdsname $(loadlib),$(cblcicsmems)}
-syslib_cbl  := CEE.SCEESAMP DFH620.CICS.SDFHCOB $(cpylib)
-syslib_lked := CEE.SCEELKED DFH620.CICS.SDFHLOAD+
-               DSND10.SDSNLOAD $(objlib)
+syslib_cbl  := SYS1.CEE.SCEESAMP CICS62.CICS.SDFHCOB $(cpylib)
+syslib_lked := SYS1.CEE.SCEELKED CICS62.CICS.SDFHLOAD+
+               DB2V13.DB2.SDSNLOAD $(objlib)
 
 #* Group of data set names with specific characteristics
 recfmFB80   := $(cpylib) $(cbllib) $(lkedlib) $(optlib) $(objlib)+
