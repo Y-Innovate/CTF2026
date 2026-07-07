@@ -356,6 +356,7 @@
                       NICKNAME-LEN OF W-LCTFM001) TO
                    NICKNAME-TEXT OF DCLDETECTIV
            END-IF
+           MOVE EMAIL-LEN OF W-LCTFM001 TO EMAIL-LEN OF DCLDETECTIV
            IF EMAIL-LEN OF W-LCTFM001 > 0
               MOVE EMAIL-TEXT OF W-LCTFM001(1:
                       EMAIL-LEN OF W-LCTFM001) TO
