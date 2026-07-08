@@ -253,6 +253,10 @@ h1 span{color:var(--corrupt);}
 
 .feedback.good{color:var(--amber);}
 
+.largepic{
+    width: 50%;
+}
+
 /* ---------- final panel ---------- */
 .final{
     position:relative;
@@ -358,6 +362,7 @@ footer{
     .answer-row{flex-direction:column;}
     .answer-row button, .final-row button{width:100%;}
     .assembled{flex-direction:column;}
+    .largepic{width:100%;}
 }
 
 @media (prefers-reduced-motion: reduce){
