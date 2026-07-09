@@ -196,6 +196,64 @@ paths:
               - JSONWriter:
                   responseObject:
                     $ref: "#/paths/~1detectives/post/x-LWWProcessingSteps/4/Condition/LWWProcessingStepsWhenFalse/0/CreateObject"
+  /sqlquery:
+    summary: Execute an SQL query
+    post:
+      summary: Execute an SQL query
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SQLQueryResponse"
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+        default:
+          description: Unexpected error
+      x-LWWProcessingSteps:
+        - AllocateIOArea:
+            name: LCTFM002
+            initWith: 0x00
+            size: 519
+            fields:
+              $ref: "#/components/x-ioareas/LCTFM002/fields"
+        - ParseRequestJSON:
+            name: LCTFC002_POST_JSNR
+        - Mapping:
+            from:
+              $ref: "#/paths/~1sqlquery/post/x-LWWProcessingSteps/1/ParseRequestJSON"
+            to:
+              $ref: "#/paths/~1sqlquery/post/x-LWWProcessingSteps/0/AllocateIOArea/fields"
+            combinations:
+              - type: singleFields
+                fromName: sqlquery
+                toName: SQLQUERY
+        - Link:
+            program: CTFC002
+            passDataWith: container
+            ioArea:
+              $ref: "#/paths/~1sqlquery/post/x-LWWProcessingSteps/0/AllocateIOArea"
+        - CreateObject:
+            name: CTFM002_POST_RET_OK
+            properties:
+              $ref: "#/components/schemas/SQLQueryResponse/properties"
+        - Mapping:
+            from:
+              $ref: "#/paths/~1sqlquery/post/x-LWWProcessingSteps/0/AllocateIOArea/fields"
+            to:
+              $ref: "#/paths/~1sqlquery/post/x-LWWProcessingSteps/4/CreateObject/properties"
+            combinations:
+              - type: singleFields
+                fromName: SQLCODE-C
+                toName: sqlcode
+        - JSONWriter:
+            responseObject:
+              $ref: "#/paths/~1sqlquery/post/x-LWWProcessingSteps/4/CreateObject"
   /token:
     summary: Retrieve access token
     post:
@@ -301,6 +359,11 @@ components:
           type: string
         infoMessage:
           type: string
+    SQLQueryResponse:
+      type: object
+      properties:
+        sqlcode:
+          type: number
     TokenResponse:
       type: object
       properties:
@@ -350,6 +413,15 @@ components:
         - name: UPDATEDDATE
           type: CHARARRAY1200
           length: 26
+    LCTFM002:
+      fields:
+        - name: SQLQUERY
+          type: VARCHAR1200
+          length: 256
+        - name: SQLCODE-C
+          type: SPD
+          length: 5
+          precision: 0
     LWWADPLI:
       fields:
         - name: USERNAME

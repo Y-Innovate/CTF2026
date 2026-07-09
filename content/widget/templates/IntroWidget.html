@@ -4,7 +4,15 @@
             <div class="frag-title">Welcome aboard <span data-dojo-attach-point="spanNickname1"></span></div>
         </div>
     </div>
-    <p class="meta-note">Welcome detective <b><span data-dojo-attach-point="spanNickname2"></span></b>. You're needed straight away on a highly confidential case: the panels on our beloved Z17 mainframe have been defaced as you can see in the photo below taken at the crime scene. We have a number of suspects lined up, but we need your help in identifying the perpetrator.</p>
-    <div class="feedback" id="feedback1" data-dojo-attach-point="feedback1"></div>
+    <p class="meta-note">Welcome detective <b><span data-dojo-attach-point="spanNickname2"></span></b>. You're needed straight away on a highly confidential case: the panels on our beloved IBM Z mainframe have been defaced as you can see in the photo below taken at the crime scene:</p>
     <img src="widget/templates/images/nomorez_sepia.jpg" class="largepic"/>
+    <p class="meta-note">Our first objective is to compile a list of suspects. Everyone that enters or exits the computer room in our data center is logged. The Z-vandal however managed to hack the DB2 table containing those log entries and seems to have messed with the timestamps of the last 48 hours. Below is the query we normally use, can you correct that so it gives us correct information again?</p>
+    <div class="payload"><code>SELECT ACCTIME, TIMESTAMP('1970-01-01') + ACCTIME SECONDS +
+       CURRENT TIMEZONE, INOROUT, USERID
+  FROM CTF2026.ACCLOG;</code></div>
+    <div class="answer-row">
+        <textarea id="inputSQL" data-dojo-attach-point="inputSQL" placeholder="ENTER SQL QUERY" autocomplete="off" spellcheck="false"></textarea>
+        <button onclick="checkFragment(1)">EXECUTE</button>
+    </div>
+    <div class="feedback" id="feedback1" data-dojo-attach-point="feedback1"></div>    
 </div>

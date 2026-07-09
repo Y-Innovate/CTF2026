@@ -12,10 +12,10 @@ from pathlib import Path
 from Globals import Globals
 from MyRequests import MyRequests
 
-#Globals.myHost = "https://yinhdisv:8081"
-Globals.myHost = "https://mainframeyin:8092"
+Globals.myHost = "https://yinhdisv:8081"
+#Globals.myHost = "https://mainframeyin:8092"
 Globals.myBasepath = ""
-Globals.myCreds = ('','')
+Globals.myCreds = ('YBTKS','')
 Globals.s = requests.sessions.Session()
 
 if Globals.myCreds[0] == '':
@@ -28,7 +28,7 @@ if Globals.myCreds[1] == '':
 
 print("Getting bearer token")
 
-MyRequests.getBearerToken()
+MyRequests.getBearerToken("/LWWAPI/API/token")
 
 dir = "/home/bobby/Y-Innovate/software/git/CTF2026/content"
 
