@@ -102,7 +102,7 @@ $(loaddb2tgts) : $(srcloadlib)($%)
 - CALL IEBCOPY PDSIN($(srcloadlib)) PDSOUT($(tgtloadlib))+
 -              MEMBER($%) PRINTSUCCESS(NO)
 - CALL BIND SYSTEM(DBY1) PACKAGE(CTF2026) MEMBER($%)+
--           OWNER(CTF2026) QUALIFIER(CTF2026)+
+-           OWNER(CTF2026) QUALIFIER(CTF2026) ENCODING(EBCDIC)+
 -           LIBRARY('$(tgtdbrmlib)')
 
 $(ddltgts) : $(gitdir)/DDL/$%.sql

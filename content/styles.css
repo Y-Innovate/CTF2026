@@ -226,7 +226,8 @@ h1 span{color:var(--corrupt);}
     display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;
 }
 
-.answer-row input{
+.answer-row input,
+.answer-row textarea{
     flex:1 1 180px;
     background:var(--bg); border:1px solid var(--amber-faint);
     color:var(--paper); font-family:inherit; font-size:14px;
@@ -234,7 +235,10 @@ h1 span{color:var(--corrupt);}
     letter-spacing:0.06em;
 }
 
-.answer-row input:focus{outline:none; border-color:var(--amber);}
+.answer-row input:focus,
+.answer-row textarea:focus{
+    outline:none; border-color:var(--amber);
+}
 
 .answer-row button{
     background:var(--amber); color:var(--bg); border:none;

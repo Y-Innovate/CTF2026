@@ -1,20 +1,15 @@
-import os
 import json
 
 from Globals import Globals
 
 class MyRequests:
     @classmethod
-    def getBearerToken(cls):
-        #if os.path.isfile(".bearerToken"):
-        #    with open(".bearerToken", "r") as file:
-        #        Globals.myBearer = file.read()
-        #else:
+    def getBearerToken(cls, uri):
         data = {}
         data["username"] = Globals.myCreds[0]
         data["password"] = Globals.myCreds[1]
 
-        requrl = Globals.myHost + "/LWWAPI/API/token"
+        requrl = Globals.myHost + uri
 
         if Globals.myDebug > 0:
             print("POST " + requrl)
@@ -22,14 +17,13 @@ class MyRequests:
         resppost = Globals.s.post(requrl, data=json.dumps(data))
 
         if (resppost.status_code == 200):
-            # print(resppost.text)
+            if Globals.myDebug > 0:
+                print(resppost.text)
+
             gettoken = json.loads(resppost.text)
 
             if (gettoken['token']):
                 Globals.myBearer = gettoken['token']
-
-                #with open(".bearerToken", "w") as file:
-                #    file.write(Globals.myBearer)
             else:
                 raise Exception('unknown response')
         else:
@@ -72,6 +66,9 @@ class MyRequests:
 
         respget = cls.doit("GET", _requrl, data)
         
+        if Globals.myDebug > 0:
+            print(respget.text)
+
         return respget
 
     @classmethod
@@ -82,7 +79,10 @@ class MyRequests:
             print("PUT " + _requrl)
 
         respput = cls.doit("PUT", _requrl, data, files)
-        
+
+        if Globals.myDebug > 0:
+            print(respput.text)
+
         return respput
 
     @classmethod
@@ -93,7 +93,10 @@ class MyRequests:
             print("POST " + _requrl)
 
         resppost = cls.doit("POST", _requrl, data, files)
-        
+
+        if Globals.myDebug > 0:
+            print(resppost.text)
+
         return resppost
 
     @classmethod
@@ -104,5 +107,8 @@ class MyRequests:
             print("DELETE " + _requrl)
 
         respdelete = cls.doit("DELETE", _requrl, data)
+
+        if Globals.myDebug > 0:
+            print(respdelete.text)
 
         return respdelete
