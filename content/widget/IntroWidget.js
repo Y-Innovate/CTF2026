@@ -21,8 +21,6 @@ define([
                 };
 
                 reqData = JSON.stringify(reqData);
-                
-                console.log(reqData);
 
                 xhr.post("API/v1/sqlquery", {
                     handleAs: "json",
@@ -30,7 +28,16 @@ define([
                     preventCache: true,
                     sync: true
                 }).then(lang.hitch(this, function(data) {
-                    console.log(data);
+                    if (data && data.sqlcode) {
+                        this.sqlresult.innerText = "sqlcode " + data.sqlcode;
+                        if (data.sqlcode == " 00000") {
+                            for (var i = 0; i < data.sqlResults.length; i++) {
+                                this.sqlresult.innerText += "\n" + data.sqlResults[i].resultLine;
+                            }
+                        }
+                    } else {
+                        this.sqlresult.innerText = JSON.stringify(data);
+                    }
                 }), lang.hitch(this, function(err) {
                     console.log(err);
                 }))
