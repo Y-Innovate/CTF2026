@@ -9,7 +9,7 @@ from MyRequests import MyRequests
 Globals.myHost = "https://yinhdisv:8081"
 #Globals.myHost = "https://mainframeyin:8092"
 Globals.myBasepath = ""
-Globals.myCreds = ('YBTKS','YINPASS$')
+Globals.myCreds = ('YBTKS','')
 Globals.pathPrefix = "/CTF2026/API/v1"
 Globals.s = requests.sessions.Session()
 

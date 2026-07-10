@@ -219,7 +219,7 @@ paths:
         - AllocateIOArea:
             name: LCTFM002
             initWith: 0x00
-            size: 519
+            size: 24266
             fields:
               $ref: "#/components/x-ioareas/LCTFM002/fields"
         - ParseRequestJSON:
@@ -251,6 +251,13 @@ paths:
               - type: singleFields
                 fromName: SQLCODE-C
                 toName: sqlcode
+              - type: groupToArray
+                fromGroupName: SQLRESULTS
+                toArrayName: sqlResults
+                itemMappings:
+                  - type: singleFields
+                    fromName: SQLRESLINE
+                    toName: resultLine
         - JSONWriter:
             responseObject:
               $ref: "#/paths/~1sqlquery/post/x-LWWProcessingSteps/4/CreateObject"
@@ -364,6 +371,13 @@ components:
       properties:
         sqlcode:
           type: number
+        sqlResults:
+          type: array
+          items:
+            type: object
+            properties:
+              resultLine:
+                type: string
     TokenResponse:
       type: object
       properties:
@@ -416,12 +430,22 @@ components:
     LCTFM002:
       fields:
         - name: SQLQUERY
-          type: VARCHAR1200
+          type: VARCHAR037
           length: 256
         - name: SQLCODE-C
-          type: SPD
-          length: 5
-          precision: 0
+          type: CHARARRAY037
+          length: 6
+        - name: RESULT-LINECT
+          type: UI2
+          length: 2
+        - name: SQLRESULTS
+          type: GROUPDEPENDSON
+          maxOccurs: 300
+          dependsOn: RESULT-LINECT
+          fields:
+            - name: SQLRESLINE
+              type: CHARARRAY037
+              length: 80
     LWWADPLI:
       fields:
         - name: USERNAME
