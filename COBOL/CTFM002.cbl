@@ -25,12 +25,19 @@
           05 W-COL-COUNT     PIC S9(4) COMP.
           05 W-IDX           PIC S9(4) COMP.
           05 W-PTR           POINTER.
+          05 W-PTRN          REDEFINES W-PTR PIC S9(8) COMP-5.
           05 W-COLUMN-IND    PIC S9(4) COMP.
           05 W-COLUMN-LEN    PIC S9(4) COMP.
           05 W-COLUMN-PREC   PIC S9(4) COMP.
           05 W-COLUMN-SCALE  PIC S9(4) COMP.
           05 W-DUMMY         PIC S9(4) COMP.
           05 W-MYTYPE        PIC S9(4) COMP.
+          05 W-INT           PIC S9(8) COMP-5.
+          05 W-INT-C         REDEFINES W-INT PIC X(4).
+          05 W-INT-Z         PIC -9(9).
+          05 W-BIGINT        PIC S9(18) COMP-5.
+          05 W-BIGINT-C      REDEFINES W-BIGINT PIC X(8).
+          05 W-BIGINT-Z      PIC -9(18).
 
        01 H-STMT1.
           49 H-STMT1-LENGTH  PIC S9(4) COMP-5.
@@ -75,6 +82,8 @@
        LINKAGE SECTION.
        01 P-LCTFM002.
            COPY LCTFM002.
+       
+       01 P-CHAR             PIC X.
 
        PROCEDURE DIVISION USING P-LCTFM002.
        MAIN SECTION.
@@ -130,44 +139,6 @@
                 UNTIL W-IDX > W-COL-COUNT
                  SET W-PTR TO ADDRESS OF W-COL-DATA(W-IDX)
                  SET SQLDATA(W-IDX) TO W-PTR
-                 MOVE SQLLEN(W-IDX) TO W-COLUMN-LEN
-                 DIVIDE SQLTYPE(W-IDX) BY TWO GIVING W-DUMMY
-                    REMAINDER W-COLUMN-IND
-                 MOVE SQLTYPE(W-IDX) TO W-MYTYPE
-                 SUBTRACT W-COLUMN-IND FROM W-MYTYPE
-                 EVALUATE W-MYTYPE
-                    WHEN CHARTYPE  CONTINUE,
-                    WHEN DATETYP   CONTINUE,
-                    WHEN TIMETYP   CONTINUE,
-                    WHEN TIMESTMP  CONTINUE,
-                    WHEN FLOATYPE  CONTINUE,
-                    WHEN VARCTYPE
-                       ADD TWO TO W-COLUMN-LEN,
-                    WHEN VARLTYPE
-                       ADD TWO TO W-COLUMN-LEN,
-                    WHEN GTYPE
-                       MULTIPLY W-COLUMN-LEN BY TWO GIVING W-COLUMN-LEN,
-                    WHEN VARGTYPE
-                       MULTIPLY W-COLUMN-LEN BY TWO GIVING W-COLUMN-LEN
-                       ADD TWO TO W-COLUMN-LEN
-                    WHEN LVARGTYP
-                       MULTIPLY W-COLUMN-LEN BY TWO GIVING W-COLUMN-LEN
-                       ADD TWO TO W-COLUMN-LEN
-                    WHEN HWTYPE
-                       MOVE TWO TO W-COLUMN-LEN,
-                    WHEN INTTYPE
-                       MOVE FOUR TO W-COLUMN-LEN,
-                    WHEN BIGINTTP
-                       MOVE 8 TO W-COLUMN-LEN,
-                    WHEN DECTYPE
-                       DIVIDE W-COLUMN-LEN BY 256 GIVING W-COLUMN-PREC
-                          REMAINDER W-COLUMN-SCALE
-                       MOVE W-COLUMN-PREC TO W-COLUMN-LEN
-                       ADD ONE TO W-COLUMN-LEN
-                       DIVIDE W-COLUMN-LEN BY TWO GIVING W-COLUMN-LEN
-                    WHEN OTHER
-                       PERFORM R900-DSNTIAR
-                 END-EVALUATE
                  MOVE 0 TO W-COL-IND(W-IDX)
                  IF W-COLUMN-IND = ONE
                     SET W-PTR TO ADDRESS OF W-COL-IND(W-IDX)
@@ -184,6 +155,75 @@
                     FETCH CURS1
                      INTO DESCRIPTOR :SQLDA
                  END-EXEC
+
+                 PERFORM UNTIL SQLCODE NOT = 0
+                            OR RESULT-LINECT >= 300
+                    ADD 1 TO RESULT-LINECT
+                    INITIALIZE SQLRESLINE(RESULT-LINECT)
+
+                    SET W-PTR TO ADDRESS OF SQLRESLINE(RESULT-LINECT)
+
+                    PERFORM VARYING W-IDX FROM 1 BY 1
+                      UNTIL W-IDX > W-COL-COUNT
+                       MOVE SQLLEN(W-IDX) TO W-COLUMN-LEN
+                       DIVIDE SQLTYPE(W-IDX) BY TWO GIVING W-DUMMY
+                              REMAINDER W-COLUMN-IND
+                       MOVE SQLTYPE(W-IDX) TO W-MYTYPE
+                       SUBTRACT W-COLUMN-IND FROM W-MYTYPE
+                       EVALUATE W-MYTYPE
+                          WHEN CHARTYPE  CONTINUE,
+                          WHEN DATETYP   CONTINUE,
+                          WHEN TIMETYP   CONTINUE,
+                          WHEN TIMESTMP  CONTINUE,
+                          WHEN FLOATYPE  CONTINUE,
+                          WHEN VARCTYPE
+                             ADD TWO TO W-COLUMN-LEN,
+                          WHEN VARLTYPE
+                             ADD TWO TO W-COLUMN-LEN,
+                          WHEN GTYPE
+                             MULTIPLY W-COLUMN-LEN BY TWO
+                                GIVING W-COLUMN-LEN,
+                          WHEN VARGTYPE
+                             MULTIPLY W-COLUMN-LEN BY TWO
+                                GIVING W-COLUMN-LEN
+                             ADD TWO TO W-COLUMN-LEN
+                          WHEN LVARGTYP
+                             MULTIPLY W-COLUMN-LEN BY TWO
+                               GIVING W-COLUMN-LEN
+                             ADD TWO TO W-COLUMN-LEN
+                          WHEN HWTYPE
+                             MOVE TWO TO W-COLUMN-LEN,
+                          WHEN INTTYPE
+                             MOVE FOUR TO W-COLUMN-LEN,
+                          WHEN BIGINTTP
+                             MOVE W-COL-DATA(W-IDX)(1:8) TO W-BIGINT-C
+                             MOVE W-BIGINT TO W-BIGINT-Z
+                             MOVE W-BIGINT-Z TO W-COL-DATA(W-IDX)(1:18)
+                             MOVE 18 TO W-COLUMN-LEN,
+                          WHEN DECTYPE
+                             DIVIDE W-COLUMN-LEN BY 256
+                                GIVING W-COLUMN-PREC
+                                REMAINDER W-COLUMN-SCALE
+                             MOVE W-COLUMN-PREC TO W-COLUMN-LEN
+                             ADD ONE TO W-COLUMN-LEN
+                             DIVIDE W-COLUMN-LEN BY TWO
+                                GIVING W-COLUMN-LEN
+                          WHEN OTHER
+                             PERFORM R900-DSNTIAR
+                       END-EVALUATE
+
+                       SET ADDRESS OF P-CHAR TO W-PTR
+                       MOVE W-COL-DATA(W-IDX)(1:W-COLUMN-LEN) TO
+                            P-CHAR(1:W-COLUMN-LEN)
+                       ADD W-COLUMN-LEN TO W-PTRN
+                       ADD ONE TO W-PTRN
+                    END-PERFORM
+
+                    EXEC SQL
+                       FETCH CURS1
+                        INTO DESCRIPTOR :SQLDA
+                    END-EXEC
+                 END-PERFORM
 
                  EXEC SQL
                     CLOSE CURS1
