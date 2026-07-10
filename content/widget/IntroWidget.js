@@ -1,18 +1,37 @@
 define([
     "dojo/_base/declare",
     "dojo/_base/lang",
+    "dojo/on",
     "dojo/request/xhr",
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
     "dojo/text!./templates/IntroWidget.html"
-], function(declare, lang, xhr, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, template) {
+], function(declare, lang, on, xhr, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, template) {
     return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
         baseClass: "introWidget",
         templateString: template,
         title: "",
         startup: function() {
             this.inherited(arguments);
+
+            on(this.buttonExecuteSQL, "click", lang.hitch(this, function(event) {
+                data = {}
+                data['sqlquery'] = this.inputSQL.value;
+
+                console.log(data);
+
+                xhr.post("API/v1/sqlquery", {
+                    handleAs: "json",
+                    data: data,
+                    preventCache: true,
+                    sync: true
+                }).then(lang.hitch(this, function(data) {
+                    console.log(data);
+                }), lang.hitch(this, function(err) {
+                    console.log(err);
+                }))
+            }));
 
             xhr("API/v1/loginInfo", {
                 handleAs: "json",

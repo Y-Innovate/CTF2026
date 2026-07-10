@@ -12,7 +12,7 @@
   FROM CTF2026.ACCLOG;</code></div>
     <div class="answer-row">
         <textarea id="inputSQL" data-dojo-attach-point="inputSQL" placeholder="ENTER SQL QUERY" autocomplete="off" spellcheck="false"></textarea>
-        <button onclick="checkFragment(1)">EXECUTE</button>
+        <button data-dojo-attach-point="buttonExecuteSQL">EXECUTE</button>
     </div>
-    <div class="feedback" id="feedback1" data-dojo-attach-point="feedback1"></div>    
+    <div class="feedback"><pre id="sqlresult" data-dojo-attach-point="sqlresult"></pre></div>    
 </div>
