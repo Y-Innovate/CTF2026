@@ -29,8 +29,8 @@
 -- Create access log table
    CREATE TABLE CTF2026.ACCLOG
       (ACCTIME     BIGINT          NOT NULL,
-       INOROUT     GRAPHIC(1)      NOT NULL,
-       USERID      GRAPHIC(8)      NOT NULL,
+       INOROUT     CHAR(1)         NOT NULL,
+       USERID      CHAR(8)         NOT NULL,
        CONSTRAINT ACCTIMEKEY
        PRIMARY KEY (ACCTIME))
       IN DBCTF26.TSACCLOG
