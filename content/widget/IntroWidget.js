@@ -16,14 +16,17 @@ define([
             this.inherited(arguments);
 
             on(this.buttonExecuteSQL, "click", lang.hitch(this, function(event) {
-                data = {}
-                data['sqlquery'] = this.inputSQL.value;
+                var reqData = {
+                    sqlquery: this.inputSQL.value
+                };
 
-                console.log(data);
+                reqData = JSON.stringify(reqData);
+                
+                console.log(reqData);
 
                 xhr.post("API/v1/sqlquery", {
                     handleAs: "json",
-                    data: data,
+                    data: reqData,
                     preventCache: true,
                     sync: true
                 }).then(lang.hitch(this, function(data) {
