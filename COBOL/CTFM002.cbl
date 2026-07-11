@@ -194,7 +194,10 @@
                           WHEN HWTYPE
                              MOVE TWO TO W-COLUMN-LEN,
                           WHEN INTTYPE
-                             MOVE FOUR TO W-COLUMN-LEN,
+                             MOVE W-COL-DATA(W-IDX)(1:4) TO W-INT-C
+                             MOVE W-INT TO W-INT-Z
+                             MOVE W-INT-Z TO W-COL-DATA(W-IDX)(1:9)
+                             MOVE 9 TO W-COLUMN-LEN,
                           WHEN BIGINTTP
                              MOVE W-COL-DATA(W-IDX)(1:8) TO W-BIGINT-C
                              MOVE W-BIGINT TO W-BIGINT-Z
@@ -228,7 +231,11 @@
                  EXEC SQL
                     CLOSE CURS1
                  END-EXEC
+              ELSE
+                 PERFORM R900-DSNTIAR
               END-IF
+           ELSE
+              PERFORM R900-DSNTIAR
            END-IF
 
            MOVE SQLCODE TO SQLCODE-C OF P-LCTFM002
