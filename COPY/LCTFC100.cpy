@@ -3,3 +3,4 @@
              10 NICKNAME.
                 49 NICKNAME-LEN   PIC S9(4) USAGE COMP-5.
                 49 NICKNAME-TEXT  PIC N(128).
+             10 INTRODONE         PIC N.

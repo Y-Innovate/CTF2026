@@ -24,6 +24,40 @@ html,body{
     overflow-x:hidden;
 }
 
+input[type="checkbox"]{
+    display: grid;
+    place-content: center;
+    background-color:var(--amber-faint);
+    appearance: none;
+    margin: 0;
+    font: inherit;
+    color: currentColor;
+    width: 1.15em;
+    height: 1.15em;
+    border: 0.15em solid var(--amber-dim);
+    border-radius: 0.15em;
+    transform: translateY(-0.075em);
+}
+
+input[type="checkbox"]::before{
+    content: "";
+    width: 0.65em;
+    height: 0.65em;
+    transform: scale(0);
+    transition: 120ms transform ease-in-out;
+    box-shadow: inset 1em 1em var(--amber);
+}
+
+input[type="checkbox"]:checked::before {
+    transform: scale(1);
+}
+
+.checkbox-label {
+    display: grid;
+    grid-template-columns: 1em auto;
+    gap: 0.8em;
+}
+
 ::selection{background:var(--amber);color:#0b0a07;}
 
 /* ---------- CRT / scanline atmosphere ---------- */
@@ -259,6 +293,10 @@ h1 span{color:var(--corrupt);}
 
 .largepic{
     width: 50%;
+}
+
+.listOfChoices li {
+    list-style: none;
 }
 
 /* ---------- final panel ---------- */

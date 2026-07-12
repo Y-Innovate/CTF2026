@@ -1,9 +1,9 @@
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. CTFW001.
+       PROGRAM-ID. CTFW002.
       *===============================================================*
-      * This program is a WEB program for the CTF2026 app. It checks  *
-      * if the current users is registered in the DETECTIV table. If  *
-      * not then the client is redirected to give_nickname.html.      *
+      * This program is a WEB program for the CTF2026 app. It tests   *
+      * a list of suspects submitted in the IntroWidget and if valid  *
+      * it updates the current user's DETECTIV row.                   *
       * ------------------------------------------------------------- *
       * Updates:                                                      *
       *                                                               *
@@ -21,6 +21,10 @@
            05  W-CONT-NAME           PIC X(16).
            05  W-CONT-POINTER        POINTER.
            05  W-CONT-LENGTH         PIC S9(9) USAGE COMP-5.
+           05  W-FF-NAME             PIC X(64).
+           05  W-FF-NAMELEN          PIC S9(9) USAGE COMP-5.
+           05  W-FF-VALUE            PIC X(64).
+           05  W-FF-VALUELEN         PIC S9(9) USAGE COMP-5.
            05  W-RETURNCODE          PIC X(2)  VALUE '00'.
            05  W-PGMNAME             PIC X(8)  VALUE SPACES.
            05  W-USERID              PIC X(8).
@@ -30,6 +34,10 @@
            05  SW-CONT-FOUND-VAL     PIC X     VALUE 'N'.
                88  SW-CONT-FOUND               VALUE 'Y'.
                88  SW-CONT-MISSING             VALUE 'N'.
+
+           05  SW-LIST-CORRECT-VAL   PIC X     VALUE 'Y'.
+               88  SW-LIST-CORRECT             VALUE 'Y'.
+               88  SW-LIST-INCORRECT           VALUE 'N'.
 
            05  MSGSTR.
                10  Vstring-length    PIC S9(4) BINARY.
@@ -52,7 +60,11 @@
                    15  Case-Sev-Ctl    PIC X.
                    15  Facility-ID     PIC XXX.
                10  I-S-Info            PIC S9(9) BINARY.
-       
+
+       01  W-SUSPECT-TABLE.
+           05  W-SUSPECT-IDX         PIC S9(4) COMP-5.
+           05  W-SUSPECT             PIC X(64) OCCURS 3 TIMES.
+
        01  W-LCTFM001.
            COPY LCTFM001.
        01  W-LINKPAR.
@@ -65,7 +77,7 @@
        MAIN SECTION.
            PERFORM R001-INIT
 
-           PERFORM R005-CHECK-NICNAME
+           PERFORM R005-CHECK-SUSPECTS
 
            PERFORM R009-FINISH
            .
@@ -74,7 +86,9 @@
       * R001-INIT: Program initialisations                            *
       *===============================================================*
        R001-INIT SECTION.
-           MOVE C-CHNL-NAME-LWW    TO W-CHNL-NAME 
+           SET SW-LIST-CORRECT TO TRUE
+
+           MOVE C-CHNL-NAME-LWW    TO W-CHNL-NAME
            MOVE C-CONT-NAME-LWW-00 TO W-CONT-NAME
 
            PERFORM R910-GET-CONTAINER
@@ -88,40 +102,122 @@
            EXIT.
 
       *===============================================================*
-      * R005-CHECK-NICNAME: Check if user is present in DETECTIV      *
+      * R005-CHECK-SUSPECTS: Check list of submitted suspects         *
       *===============================================================*
-       R005-CHECK-NICNAME SECTION.
+       R005-CHECK-SUSPECTS SECTION.
+           PERFORM VARYING W-SUSPECT-IDX FROM 1 BY 1
+             UNTIL W-SUSPECT-IDX > 3
+              MOVE SPACES TO W-SUSPECT(W-SUSPECT-IDX)
+           END-PERFORM
+
+           MOVE 0 TO W-SUSPECT-IDX
+
            EXEC CICS
-              ASSIGN USERID(W-USERID)
+              WEB STARTBROWSE FORMFIELD
+                              NOHANDLE
            END-EXEC
 
-           MOVE N'R' TO OPCODE OF W-LCTFM001
-           MOVE FUNCTION NATIONAL-OF(W-USERID) TO USERID OF W-LCTFM001
+           IF EIBRESP = DFHRESP(NORMAL)
+              MOVE LENGTH OF W-FF-NAME TO W-FF-NAMELEN
+              MOVE LENGTH OF W-FF-VALUE TO W-FF-VALUELEN
 
-           MOVE 'CTFM001' TO W-PGMNAME
+              EXEC CICS
+                 WEB READNEXT FORMFIELD(W-FF-NAME)
+                              NAMELENGTH(W-FF-NAMELEN)
+                              VALUE(W-FF-VALUE)
+                              VALUELENGTH(W-FF-VALUELEN)
+                              NOHANDLE
+              END-EXEC
 
-           CALL W-PGMNAME USING W-LCTFM001
+              PERFORM UNTIL EIBRESP NOT = DFHRESP(NORMAL)
+                   OR SW-LIST-INCORRECT
+                 IF  W-FF-NAMELEN = 15
+                 AND W-FF-NAME(1:15) = 'checked_suspect'
+                    IF W-SUSPECT-IDX < 3
+                       ADD 1 TO W-SUSPECT-IDX
+                       MOVE W-FF-VALUE(1:W-FF-VALUELEN) TO
+                            W-SUSPECT(W-SUSPECT-IDX)
+                    ELSE
+                       SET SW-LIST-INCORRECT TO TRUE
+                    END-IF
+                 END-IF
 
-           IF RETURNCODE OF W-LCTFM001 NOT = N'00'
-              IF RETURNCODE OF W-LCTFM001 = N'04'
-                 MOVE 'FL000009' TO LREDURI OF W-LINKPAR
+                 EXEC CICS
+                    WEB READNEXT FORMFIELD(W-FF-NAME)
+                                 NAMELENGTH(W-FF-NAMELEN)
+                                 VALUE(W-FF-VALUE)
+                                 VALUELENGTH(W-FF-VALUELEN)
+                                 NOHANDLE
+                 END-EXEC
+              END-PERFORM
+
+              EXEC CICS
+                 WEB ENDBROWSE FORMFIELD
+              END-EXEC
+           END-IF
+
+           IF SW-LIST-CORRECT
+              IF W-SUSPECT-IDX = 3
+                 PERFORM VARYING W-SUSPECT-IDX FROM 1 BY 1
+                   UNTIL W-SUSPECT-IDX > 3
+                      OR SW-LIST-INCORRECT
+                    IF  W-SUSPECT(W-SUSPECT-IDX) NOT = 'DC0442'
+                    AND W-SUSPECT(W-SUSPECT-IDX) NOT = 'DC0467'
+                    AND W-SUSPECT(W-SUSPECT-IDX) NOT = 'DC0511'
+                       SET SW-LIST-INCORRECT TO TRUE
+                    END-IF
+                 END-PERFORM
+              ELSE
+                 SET SW-LIST-INCORRECT TO TRUE
+              END-IF
+           END-IF
+
+           IF SW-LIST-CORRECT
+              MOVE 'true' TO W-FF-VALUE
+              MOVE 4 TO W-FF-VALUELEN
+           ELSE
+              MOVE 'false' TO W-FF-VALUE
+              MOVE 5 TO W-FF-VALUELEN
+           END-IF
+
+           EXEC CICS
+              DOCUMENT SET DOCTOKEN(DTOKEN)
+                           SYMBOL('LISTCORRECT')
+                           VALUE(W-FF-VALUE)
+                           LENGTH(W-FF-VALUELEN)
+                           NOHANDLE
+           END-EXEC
+
+           IF SW-LIST-CORRECT
+              EXEC CICS
+                 ASSIGN USERID(W-USERID)
+              END-EXEC
+
+              MOVE FUNCTION NATIONAL-OF(W-USERID) TO
+                   USERID OF W-LCTFM001
+
+              MOVE N'R' TO OPCODE OF W-LCTFM001
+
+              MOVE 'CTFM001' TO W-PGMNAME
+
+              CALL W-PGMNAME USING W-LCTFM001
+
+              IF  RETURNCODE OF W-LCTFM001 = N'00'
+              AND INTRODONE OF W-LCTFM001 NOT = N'Y'
+                 MOVE N'U' TO OPCODE OF W-LCTFM001
+                 MOVE N'Y' TO INTRODONE OF W-LCTFM001
+
+                 CALL W-PGMNAME USING W-LCTFM001
               END-IF
            END-IF
            .
-       R005-CHECK-NICNAME-END.
+       R005-CHECK-SUSPECTS-END.
            EXIT.
 
       *===============================================================*
       * R009-FINISH: Program finalisations                            *
       *===============================================================*
        R009-FINISH SECTION.
-           MOVE C-CHNL-NAME-LWW     TO W-CHNL-NAME 
-           MOVE C-CONT-NAME-LWW-00  TO W-CONT-NAME
-           MOVE LENGTH OF W-LINKPAR TO W-CONT-LENGTH
-           SET W-CONT-POINTER TO ADDRESS OF W-LINKPAR
-
-           PERFORM R920-PUT-CONTAINER
-
            EXEC CICS
               RETURN
            END-EXEC
@@ -140,7 +236,7 @@
               SET SW-CONT-FOUND TO TRUE
            ELSE
               SET SW-CONT-MISSING TO TRUE
-              
+
               IF  EIBRESP NOT = DFHRESP(CHANNELERR)
               AND EIBRESP NOT = DFHRESP(CONTAINERERR)
                  MOVE '08' TO W-RETURNCODE
@@ -159,34 +255,4 @@
            .
        R910-GET-CONTAINER-END.
            EXIT.
-
-       R920-PUT-CONTAINER SECTION.
-           SET ADDRESS OF P-CHAR TO W-CONT-POINTER
-
-           EXEC CICS
-              PUT CONTAINER(W-CONT-NAME)
-                  CHANNEL(W-CHNL-NAME)
-                  FROM(P-CHAR)
-                  FLENGTH(W-CONT-LENGTH)
-                  NOHANDLE
-           END-EXEC
-
-           IF EIBRESP = DFHRESP(NORMAL)
-              CONTINUE
-           ELSE
-              MOVE '08' TO W-RETURNCODE
-
-              MOVE EIBRESP  TO W-EIBRESP
-              MOVE EIBRESP2 TO W-EIBRESP2
-              MOVE 1 TO Vstring-length
-              STRING 'PUT CONTAINER ERROR ' W-EIBRESP ' ' W-EIBRESP2
-                     DELIMITED BY SIZE
-                INTO Vstring-text
-                WITH POINTER Vstring-length
-              SUBTRACT 1 FROM Vstring-length
-              CALL 'CEEMOUT' USING MSGSTR, MSGDEST, FC
-           END-IF
-           .
-       R930-PUT-CONTAINER-END.
-           EXIT.
-       END PROGRAM CTFW001.
+       END PROGRAM CTFW002.

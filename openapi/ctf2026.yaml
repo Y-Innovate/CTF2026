@@ -30,7 +30,7 @@ paths:
         - AllocateIOArea:
             name: LCTFC100
             initWith: 0x00
-            size: 274
+            size: 276
             fields:
               $ref: "#/components/x-ioareas/LCTFC100/fields"
         - Link:
@@ -54,6 +54,9 @@ paths:
               - type: singleFields
                 fromName: NICKNAME
                 toName: nickname
+              - type: singleFields
+                fromName: INTRODONE
+                toName: introDone
         - JSONWriter:
             responseObject:
               $ref: "#/paths/~1loginInfo/get/x-LWWProcessingSteps/2/CreateObject"
@@ -80,7 +83,7 @@ paths:
         - AllocateIOArea:
             name: LCTFM001
             initWith: 0x00
-            size: 822
+            size: 824
             fields:
               $ref: "#/components/x-ioareas/LCTFM001/fields"
         - ParseRequestJSON:
@@ -100,6 +103,9 @@ paths:
               - type: singleFields
                 fromName: email
                 toName: EMAIL
+              - type: constant
+                constant: N
+                toName: INTRODONE
               - type: constant
                 constant: C
                 toName: OPCODE
@@ -158,6 +164,9 @@ paths:
                     - type: singleFields
                       fromName: EMAIL
                       toName: email
+                    - type: singleFields
+                      fromName: INTRODONE
+                      toName: introDone
                     - type: singleFields
                       fromName: CREATEDBY
                       toName: createdBy
@@ -334,6 +343,8 @@ components:
           type: string
         nickname:
           type: string
+        introDone:
+          type: string
     DetectivesCRUDLong:
       type: object
       properties:
@@ -348,6 +359,8 @@ components:
         nickname:
           type: string
         email:
+          type: string
+        introDone:
           type: string
         createdBy:
           type: string
@@ -392,6 +405,9 @@ components:
         - name: NICKNAME
           type: VARCHAR1200
           length: 128
+        - name: INTRODONE
+          type: CHARARRAY1200
+          length: 1
     LCTFM001:
       fields:
         - name: OPCODE
@@ -415,6 +431,9 @@ components:
         - name: EMAIL
           type: VARCHAR1200
           length: 128
+        - name: INTRODONE
+          type: CHARARRAY1200
+          length: 1
         - name: CREATEDBY
           type: CHARARRAY1200
           length: 08
