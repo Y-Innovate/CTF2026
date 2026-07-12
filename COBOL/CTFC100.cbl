@@ -51,7 +51,7 @@
                    15  Case-Sev-Ctl    PIC X.
                    15  Facility-ID     PIC XXX.
                10  I-S-Info            PIC S9(9) BINARY.
-       
+
        01  W-LCTFC100.
            COPY LCTFC100.
        01  W-LCTFM001.
@@ -75,7 +75,7 @@
       * R001-INIT: Program initialisations                            *
       *===============================================================*
        R001-INIT SECTION.
-           MOVE C-CHNL-NAME-LWW    TO W-CHNL-NAME 
+           MOVE C-CHNL-NAME-LWW    TO W-CHNL-NAME
            MOVE C-CONT-NAME-LWW-03 TO W-CONT-NAME
 
            PERFORM R910-GET-CONTAINER
@@ -85,7 +85,7 @@
               MOVE P-CHAR(1:W-CONT-LENGTH) TO W-LCTFC100
            END-IF
 
-           MOVE C-CHNL-NAME-LWW    TO W-CHNL-NAME 
+           MOVE C-CHNL-NAME-LWW    TO W-CHNL-NAME
            MOVE C-CONT-NAME-LWW-00 TO W-CONT-NAME
 
            PERFORM R910-GET-CONTAINER
@@ -123,9 +123,11 @@
                          NICKNAME-LEN OF W-LCTFM001) TO
                       NICKNAME-TEXT OF W-LCTFC100
               END-IF
-              MOVE INTRODONE OF W-LCTFM001 TO INTRODONE OF W-CTFC100
+              MOVE INTRODONE OF W-LCTFM001 TO INTRODONE OF W-LCTFC100
            ELSE
-              IF RETURNCODE OF W-LCTFM001 NOT = N'04'
+              IF RETURNCODE OF W-LCTFM001 = N'04'
+                 MOVE N'N' TO INTRODONE OF W-LCTFC100
+              ELSE
                  MOVE 500 TO STSCODE OF W-LINKPAR
                  MOVE 21  TO STSTXTL OF W-LINKPAR
                  MOVE 'Internal Server Error' TO STSTXTT OF W-LINKPAR
@@ -139,14 +141,14 @@
       * R009-FINISH: Program finalisations                            *
       *===============================================================*
        R009-FINISH SECTION.
-           MOVE C-CHNL-NAME-LWW      TO W-CHNL-NAME 
+           MOVE C-CHNL-NAME-LWW      TO W-CHNL-NAME
            MOVE C-CONT-NAME-LWW-03   TO W-CONT-NAME
            MOVE LENGTH OF W-LCTFC100 TO W-CONT-LENGTH
            SET W-CONT-POINTER TO ADDRESS OF W-LCTFC100
 
            PERFORM R920-PUT-CONTAINER
 
-           MOVE C-CHNL-NAME-LWW     TO W-CHNL-NAME 
+           MOVE C-CHNL-NAME-LWW     TO W-CHNL-NAME
            MOVE C-CONT-NAME-LWW-00  TO W-CONT-NAME
            MOVE LENGTH OF W-LINKPAR TO W-CONT-LENGTH
            SET W-CONT-POINTER TO ADDRESS OF W-LINKPAR
@@ -171,7 +173,7 @@
               SET SW-CONT-FOUND TO TRUE
            ELSE
               SET SW-CONT-MISSING TO TRUE
-              
+
               IF  EIBRESP NOT = DFHRESP(CHANNELERR)
               AND EIBRESP NOT = DFHRESP(CONTAINERERR)
                  MOVE '08' TO W-RETURNCODE

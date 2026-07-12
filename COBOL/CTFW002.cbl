@@ -26,6 +26,7 @@
            05  W-FF-VALUE            PIC X(64).
            05  W-FF-VALUELEN         PIC S9(9) USAGE COMP-5.
            05  W-RETURNCODE          PIC X(2)  VALUE '00'.
+           05  W-PGMNAME             PIC X(8)  VALUE SPACES.
            05  W-USERID              PIC X(8).
            05  W-EIBRESP             PIC 9(8).
            05  W-EIBRESP2            PIC 9(8).
@@ -192,10 +193,10 @@
                  ASSIGN USERID(W-USERID)
               END-EXEC
 
-              MOVE FUNCTION NATIONAL-OF(W-USERID) TO USERID OF W-LCTFC100
+              MOVE FUNCTION NATIONAL-OF(W-USERID) TO
+                   USERID OF W-LCTFM001
 
               MOVE N'R' TO OPCODE OF W-LCTFM001
-              MOVE USERID OF W-LCTFC100 TO USERID OF W-LCTFM001
 
               MOVE 'CTFM001' TO W-PGMNAME
 
