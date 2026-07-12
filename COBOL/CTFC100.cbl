@@ -123,6 +123,7 @@
                          NICKNAME-LEN OF W-LCTFM001) TO
                       NICKNAME-TEXT OF W-LCTFC100
               END-IF
+              MOVE INTRODONE OF W-LCTFM001 TO INTRODONE OF W-CTFC100
            ELSE
               IF RETURNCODE OF W-LCTFM001 NOT = N'04'
                  MOVE 500 TO STSCODE OF W-LINKPAR

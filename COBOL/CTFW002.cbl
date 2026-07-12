@@ -64,6 +64,8 @@
            05  W-SUSPECT-IDX         PIC S9(4) COMP-5.
            05  W-SUSPECT             PIC X(64) OCCURS 3 TIMES.
 
+       01  W-LCTFM001.
+           COPY LCTFM001.
        01  W-LINKPAR.
            COPY LINKPAR.
 
@@ -184,6 +186,29 @@
                            LENGTH(W-FF-VALUELEN)
                            NOHANDLE
            END-EXEC
+
+           IF SW-LIST-CORRECT
+              EXEC CICS
+                 ASSIGN USERID(W-USERID)
+              END-EXEC
+
+              MOVE FUNCTION NATIONAL-OF(W-USERID) TO USERID OF W-LCTFC100
+
+              MOVE N'R' TO OPCODE OF W-LCTFM001
+              MOVE USERID OF W-LCTFC100 TO USERID OF W-LCTFM001
+
+              MOVE 'CTFM001' TO W-PGMNAME
+
+              CALL W-PGMNAME USING W-LCTFM001
+
+              IF  RETURNCODE OF W-LCTFM001 = N'00'
+              AND INTRODONE OF W-LCTFM001 NOT = N'Y'
+                 MOVE N'U' TO OPCODE OF W-LCTFM001
+                 MOVE N'Y' TO INTRODONE OF W-LCTFM001
+
+                 CALL W-PGMNAME USING W-LCTFM001
+              END-IF
+           END-IF
            .
        R005-CHECK-SUSPECTS-END.
            EXIT.
