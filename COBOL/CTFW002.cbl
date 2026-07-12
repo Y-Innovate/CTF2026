@@ -21,6 +21,10 @@
            05  W-CONT-NAME           PIC X(16).
            05  W-CONT-POINTER        POINTER.
            05  W-CONT-LENGTH         PIC S9(9) USAGE COMP-5.
+           05  W-FF-NAME             PIC X(64).
+           05  W-FF-NAMELEN          PIC S9(9) USAGE COMP-5.
+           05  W-FF-VALUE            PIC X(64).
+           05  W-FF-VALUELEN         PIC S9(9) USAGE COMP-5.
            05  W-RETURNCODE          PIC X(2)  VALUE '00'.
            05  W-USERID              PIC X(8).
            05  W-EIBRESP             PIC 9(8).
@@ -29,6 +33,10 @@
            05  SW-CONT-FOUND-VAL     PIC X     VALUE 'N'.
                88  SW-CONT-FOUND               VALUE 'Y'.
                88  SW-CONT-MISSING             VALUE 'N'.
+
+           05  SW-LIST-CORRECT-VAL   PIC X     VALUE 'Y'.
+               88  SW-LIST-CORRECT             VALUE 'Y'.
+               88  SW-LIST-INCORRECT           VALUE 'N'.
 
            05  MSGSTR.
                10  Vstring-length    PIC S9(4) BINARY.
@@ -52,6 +60,10 @@
                    15  Facility-ID     PIC XXX.
                10  I-S-Info            PIC S9(9) BINARY.
 
+       01  W-SUSPECT-TABLE.
+           05  W-SUSPECT-IDX         PIC S9(4) COMP-5.
+           05  W-SUSPECT             PIC X(64) OCCURS 3 TIMES.
+
        01  W-LINKPAR.
            COPY LINKPAR.
 
@@ -71,7 +83,9 @@
       * R001-INIT: Program initialisations                            *
       *===============================================================*
        R001-INIT SECTION.
-           MOVE C-CHNL-NAME-LWW    TO W-CHNL-NAME 
+           SET SW-LIST-CORRECT TO TRUE
+
+           MOVE C-CHNL-NAME-LWW    TO W-CHNL-NAME
            MOVE C-CONT-NAME-LWW-00 TO W-CONT-NAME
 
            PERFORM R910-GET-CONTAINER
@@ -88,7 +102,88 @@
       * R005-CHECK-SUSPECTS: Check list of submitted suspects         *
       *===============================================================*
        R005-CHECK-SUSPECTS SECTION.
-           DISPLAY 'BLUB'
+           PERFORM VARYING W-SUSPECT-IDX FROM 1 BY 1
+             UNTIL W-SUSPECT-IDX > 3
+              MOVE SPACES TO W-SUSPECT(W-SUSPECT-IDX)
+           END-PERFORM
+
+           MOVE 0 TO W-SUSPECT-IDX
+
+           EXEC CICS
+              WEB STARTBROWSE FORMFIELD
+                              NOHANDLE
+           END-EXEC
+
+           IF EIBRESP = DFHRESP(NORMAL)
+              MOVE LENGTH OF W-FF-NAME TO W-FF-NAMELEN
+              MOVE LENGTH OF W-FF-VALUE TO W-FF-VALUELEN
+
+              EXEC CICS
+                 WEB READNEXT FORMFIELD(W-FF-NAME)
+                              NAMELENGTH(W-FF-NAMELEN)
+                              VALUE(W-FF-VALUE)
+                              VALUELENGTH(W-FF-VALUELEN)
+                              NOHANDLE
+              END-EXEC
+
+              PERFORM UNTIL EIBRESP NOT = DFHRESP(NORMAL)
+                   OR SW-LIST-INCORRECT
+                 IF  W-FF-NAMELEN = 15
+                 AND W-FF-NAME(1:15) = 'checked_suspect'
+                    IF W-SUSPECT-IDX < 3
+                       ADD 1 TO W-SUSPECT-IDX
+                       MOVE W-FF-VALUE(1:W-FF-VALUELEN) TO
+                            W-SUSPECT(W-SUSPECT-IDX)
+                    ELSE
+                       SET SW-LIST-INCORRECT TO TRUE
+                    END-IF
+                 END-IF
+
+                 EXEC CICS
+                    WEB READNEXT FORMFIELD(W-FF-NAME)
+                                 NAMELENGTH(W-FF-NAMELEN)
+                                 VALUE(W-FF-VALUE)
+                                 VALUELENGTH(W-FF-VALUELEN)
+                                 NOHANDLE
+                 END-EXEC
+              END-PERFORM
+
+              EXEC CICS
+                 WEB ENDBROWSE FORMFIELD
+              END-EXEC
+           END-IF
+
+           IF SW-LIST-CORRECT
+              IF W-SUSPECT-IDX = 3
+                 PERFORM VARYING W-SUSPECT-IDX FROM 1 BY 1
+                   UNTIL W-SUSPECT-IDX > 3
+                      OR SW-LIST-INCORRECT
+                    IF  W-SUSPECT(W-SUSPECT-IDX) NOT = 'DC0442'
+                    AND W-SUSPECT(W-SUSPECT-IDX) NOT = 'DC0467'
+                    AND W-SUSPECT(W-SUSPECT-IDX) NOT = 'DC0511'
+                       SET SW-LIST-INCORRECT TO TRUE
+                    END-IF
+                 END-PERFORM
+              ELSE
+                 SET SW-LIST-INCORRECT TO TRUE
+              END-IF
+           END-IF
+
+           IF SW-LIST-CORRECT
+              MOVE 'true' TO W-FF-VALUE
+              MOVE 4 TO W-FF-VALUELEN
+           ELSE
+              MOVE 'false' TO W-FF-VALUE
+              MOVE 5 TO W-FF-VALUELEN
+           END-IF
+
+           EXEC CICS
+              DOCUMENT SET DOCTOKEN(DTOKEN)
+                           SYMBOL('LISTCORRECT')
+                           VALUE(W-FF-VALUE)
+                           LENGTH(W-FF-VALUELEN)
+                           NOHANDLE
+           END-EXEC
            .
        R005-CHECK-SUSPECTS-END.
            EXIT.
@@ -115,7 +210,7 @@
               SET SW-CONT-FOUND TO TRUE
            ELSE
               SET SW-CONT-MISSING TO TRUE
-              
+
               IF  EIBRESP NOT = DFHRESP(CHANNELERR)
               AND EIBRESP NOT = DFHRESP(CONTAINERERR)
                  MOVE '08' TO W-RETURNCODE
