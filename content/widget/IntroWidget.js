@@ -16,31 +16,67 @@ define([
             this.inherited(arguments);
 
             on(this.buttonExecuteSQL, "click", lang.hitch(this, function(event) {
-                var reqData = {
-                    sqlquery: this.inputSQL.value
-                };
+                let sqltext = this.inputSQL.value;
 
-                reqData = JSON.stringify(reqData);
+                sqltext = sqltext.replace("\n", " ");
 
-                xhr.post("API/v1/sqlquery", {
-                    handleAs: "json",
-                    data: reqData,
-                    preventCache: true,
-                    sync: true
-                }).then(lang.hitch(this, function(data) {
-                    if (data && data.sqlcode) {
-                        this.sqlresult.innerText = "sqlcode " + data.sqlcode;
-                        if (data.sqlcode == " 00000") {
-                            for (var i = 0; i < data.sqlResults.length; i++) {
+                if (sqltext.trim().length > 0) {
+                    let reqData = {
+                        sqlquery: sqltext
+                    };
+
+                    reqData = JSON.stringify(reqData);
+
+                    xhr.post("API/v1/sqlquery", {
+                        handleAs: "json",
+                        data: reqData,
+                        preventCache: true,
+                        sync: true
+                    }).then(lang.hitch(this, function(data) {
+                        if (data && data.sqlcode) {
+                            this.sqlresult.innerText = "sqlcode " + data.sqlcode;
+                            for (let i = 0; i < data.sqlResults.length; i++) {
                                 this.sqlresult.innerText += "\n" + data.sqlResults[i].resultLine;
                             }
+                        } else {
+                            this.sqlresult.innerText = JSON.stringify(data);
                         }
-                    } else {
-                        this.sqlresult.innerText = JSON.stringify(data);
+                    }), lang.hitch(this, function(err) {
+                        console.log(err);
+                    }))
+                }
+            }));
+
+            on(this.buttonFinalInput, "click", lang.hitch(this, function(event) {
+                this.finalFeedback.innerText = "";
+
+                let arrCheckboxes = this.listOfSuspects.getElementsByTagName("input");
+
+                let postData = "";
+
+                for (let i = 0; i < arrCheckboxes.length; i++) {
+                    if (arrCheckboxes[i].checked) {
+                        if (postData.length > 0) {
+                            postData += "&"
+                        }
+                        postData += "checked_suspect=" + arrCheckboxes[i].value;
                     }
-                }), lang.hitch(this, function(err) {
-                    console.log(err);
-                }))
+                }
+
+                if (postData.length > 0) {
+                    xhr.post("process_suspect_list.json", {
+                        handleAs: "json",
+                        data: postData,
+                        preventCache: true,
+                        sync: true
+                    }).then(lang.hitch(this, function(data) {
+                        console.log(data);
+                    }), lang.hitch(this, function(err) {
+                        console.log(err);
+                    }));
+                } else {
+                    this.finalFeedback.innerText = "Select at least one";
+                }
             }));
 
             xhr("API/v1/loginInfo", {

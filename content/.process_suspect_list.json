@@ -1,0 +1,5 @@
+newFile:
+    fileId: FL000010
+    generateId: N
+    storeBinary: "N"
+    preexecLoadModule: "CTFW002"

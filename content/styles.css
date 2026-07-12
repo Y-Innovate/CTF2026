@@ -261,6 +261,10 @@ h1 span{color:var(--corrupt);}
     width: 50%;
 }
 
+.listOfChoices li {
+    list-style: none;
+}
+
 /* ---------- final panel ---------- */
 .final{
     position:relative;

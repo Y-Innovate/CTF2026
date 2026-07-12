@@ -23,7 +23,7 @@ define([
                 if (this.inputNickname.value == "") {
                     this.feedback1.innerText = "Nickname is mandatory";
                 } else {
-                    var reqData = {
+                    let reqData = {
                         userid: this.spanUserid.innerText,
                         nickname: this.inputNickname.value,
                         email: this.inputEmail.value
