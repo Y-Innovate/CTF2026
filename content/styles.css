@@ -173,16 +173,19 @@ h1 span{color:var(--corrupt);}
     border:1px solid var(--line);
     padding:8px 10px;
     font-size:10px; letter-spacing:0.1em; text-align:center;
-    color:var(--amber-dim);
+    color:var(--amber);
     border-radius:var(--radius);
     transition:all .3s ease;
+    cursor: pointer;
 }
 
-.progress-chip.done{
+.progress-chip.done,
+.progress-chip.selected{
     color:var(--bg); background:var(--amber);
     border-color:var(--amber);
     box-shadow:0 0 14px rgba(255,176,0,0.4);
 }
+
 
 /* ---------- fragment cards ---------- */
 .fragment{
@@ -198,6 +201,10 @@ h1 span{color:var(--corrupt);}
 .fragment.solved{
     border-left-color:var(--amber);
     box-shadow: inset 0 0 0 1px rgba(255,176,0,0.12);
+}
+
+.fragment.hidden {
+    display: none;
 }
 
 .frag-head{
@@ -224,6 +231,7 @@ h1 span{color:var(--corrupt);}
     background:var(--bg);
     border:1px dashed var(--amber-faint);
     border-radius:var(--radius);
+    display: flex;
     padding:14px;
     margin:12px 0;
     font-size:clamp(13px,3.2vw,16px);
@@ -231,6 +239,10 @@ h1 span{color:var(--corrupt);}
     color:var(--amber);
     word-break:break-word;
     line-height:1.7;
+}
+
+.payload img {
+    margin-right: 10px;
 }
 
 .meta-note{
@@ -405,6 +417,8 @@ footer{
     .answer-row button, .final-row button{width:100%;}
     .assembled{flex-direction:column;}
     .largepic{width:100%;}
+    .payload{flex-direction:column;}
+    .payload img{width:100%;}
 }
 
 @media (prefers-reduced-motion: reduce){

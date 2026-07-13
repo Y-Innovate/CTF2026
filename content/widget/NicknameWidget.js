@@ -37,7 +37,7 @@ define([
                         sync: true
                     }).then(lang.hitch(this, function (data) {
                         if (data && data.returnCode && data.returnCode == "00") {
-                            console.log("yep");
+                            location.reload();
                         } else {
                             if (data && data.returnCode) {
                                 alert("API/v1/detectives gave retcode " + data.returnCode + " " + data.reasonCode + " " + data.infoMessage);
