@@ -70,9 +70,13 @@ define([
                         preventCache: true,
                         sync: true
                     }).then(lang.hitch(this, function(data) {
-                        console.log(data);
+                        if (data && data.correct && data.correct == "true") {
+                            location.href = "suspects.html";
+                        } else {
+                            this.finalFeedback.innerText = "That is not correct";
+                        }
                     }), lang.hitch(this, function(err) {
-                        console.log(err);
+                        this.finalFeedback.innerText = err;
                     }));
                 } else {
                     this.finalFeedback.innerText = "Select at least one";

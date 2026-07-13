@@ -1,0 +1,74 @@
+define([
+    "dojo/_base/declare",
+    "dojo/_base/lang",
+    "dojo/dom-class",
+    "dojo/on",
+    "dojo/request/xhr",
+    "dijit/_WidgetBase",
+    "dijit/_TemplatedMixin",
+    "dijit/_WidgetsInTemplateMixin",
+    "dojo/text!./templates/SuspectsWidget.html"
+], function(declare, lang, domClass, on, xhr, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, template) {
+    return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
+        baseClass: "suspectsWidget",
+        templateString: template,
+        title: "",
+        startup: function() {
+            this.inherited(arguments);
+
+            this.switchSuspects(1);
+
+            xhr("API/v1/loginInfo", {
+                handleAs: "json",
+                preventCache: true,
+                sync: true
+            }).then(lang.hitch(this, function(data) {
+                if (!data || !data.introDone || data.introDone != "Y") {
+                    location.href = "index.html";
+                }
+                if (data && data.nickname) {
+                    this.spanNickname1.innerText = data.nickname;
+                }
+            }), lang.hitch(this, function(err) {
+                console.log(err);
+            }));
+
+            on(this.chip1, "click", lang.hitch(this, function(event) {
+                this.switchSuspects(1);
+            }));
+
+            on(this.chip2, "click", lang.hitch(this, function(event) {
+                this.switchSuspects(2);
+            }));
+
+            on(this.chip3, "click", lang.hitch(this, function(event) {
+                this.switchSuspects(3);
+            }));
+        },
+        switchSuspects: function(chip) {
+            if (chip == 1) {
+                domClass.add(this.chip1, "selected");
+                domClass.remove(this.fragmentSuspect1, "hidden");
+            } else {
+                domClass.remove(this.chip1, "selected");
+                domClass.add(this.fragmentSuspect1, "hidden");
+            }
+
+            if (chip == 2) {
+                domClass.add(this.chip2, "selected");
+                domClass.remove(this.fragmentSuspect2, "hidden");
+            } else {
+                domClass.remove(this.chip2, "selected");
+                domClass.add(this.fragmentSuspect2, "hidden");
+            }
+
+            if (chip == 3) {
+                domClass.add(this.chip3, "selected");
+                domClass.remove(this.fragmentSuspect3, "hidden");
+            } else {
+                domClass.remove(this.chip3, "selected");
+                domClass.add(this.fragmentSuspect3, "hidden");
+            }
+        }
+    });
+});
