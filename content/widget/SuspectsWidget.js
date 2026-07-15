@@ -4,11 +4,12 @@ define([
     "dojo/dom-class",
     "dojo/on",
     "dojo/request/xhr",
+    "dijit/form/NumberSpinner",
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
     "dojo/text!./templates/SuspectsWidget.html"
-], function(declare, lang, domClass, on, xhr, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, template) {
+], function(declare, lang, domClass, on, xhr, NumberSpinner, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, template) {
     return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
         baseClass: "suspectsWidget",
         templateString: template,

@@ -5,7 +5,7 @@
                 <div class="frag-title">The suspects</div>
             </div>
         </div>
-        <p class="meta-note">Good job <b><span data-dojo-attach-point="spanNickname1"></span></b> for identifying these 3 main suspects. In the meantime we've had an AI go through the employee profiles of everyone that visited the computer room, including these 3. Below is what the AI came up with, but it couldn't come to a definitive primary suspect. We want you to review its findings for each, we'll leave it up to you in what order you wish to continue.</p>
+        <p class="meta-note">Good job <b><span data-dojo-attach-point="spanNickname1"></span></b> for identifying these 3 main suspects. In the meantime we've had an AI go through the employee profiles of everyone that visited the computer room, including these 3. All 3 had means and opportunity since they have 24x7 - 365 access to the computer room, so we had the AI focus on motivation. Below is what the AI came up with, but it couldn't come to a definitive primary suspect. We want you to review its findings for each, we'll leave it up to you in what order you wish to continue.</p>
     </div>
     <div class="progress-row">
         <div class="progress-chip" data-dojo-attach-point="chip1">SUSPECT 1</div>
@@ -21,9 +21,21 @@
         </div>
         <div class="payload">
             <img src="widget/templates/images/icubobsmall.jpg"/>
-            <div>
-                Details about ICU Bob
-                <p class="meta-note">blablabla</p>
+            Details about ICU Bob
+            <p class="meta-note">I've analyzed ICU Bob's emails, group chats and social media posts.</p>
+            <p class="meta-note">ICU Bob has shown open criticism to IBM in his social media posts, but at the same time seems overly enamored with the Z platform, so there's no conclusive trail to follow there.</p>
+            <p class="meta-note">I then went through ICU Bob's change management activities and support tickets. Turns out he's been known to enter the computer room with no apparent reason and several colleagues have commented on how he just 'sits there and looks at the pretty lights'. Although definitely weird and note worthy, it doesn't point to a proclivity for vandalizing IT infrastructure.</p>
+            <p class="meta-note">Finally I scanned ICU Bob's personal data sets and source code he authored and there I found something suspicious. He seems to enjoy writing assembler code, which is suspicious enough already, and he's left these same cryptic lines in each of his sources:</p>
+            <div class="payload"><code>* C9C2D440C2D6C240E2C8   Rotate left 10 bits<br/>
+* D6E4D3C440C7D640C1E6   Exclusive or with BEEFBEEFBEEFBEEFBEEF<br/>
+* C1E86B40C940E6C1E240   Rotate right 9 bits<br/>
+* C8C5D9C540C6C9D9E2E3   Switch nibbles</code></div>
+            <p class="meta-note">I've concluded the hex strings are probably 'encrypted' by performing the bitwise operations but I was unable to produce readable text so I installed some plugins to help you perform those bitwise operations:</p>
+            <div class="answer-row">
+                <button data-dojo-attach-point="buttonRotate">ROTATE</button>&nbsp;<input type="text" data-dojo-type="dijit/form/NumberSpinner" data-dojo-props="constraints:{min:-10, max:10, places:0}, value:0"/>
+            </div>
+            <div class="answer-row">
+                <input id="inputWork" data-dojo-attach-point="inputWork" placeholder="ENTER HEXADECIMAL STRING" autocomplete="off" spellcheck="false"/>
             </div>
         </div>
     </div>

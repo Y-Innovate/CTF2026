@@ -1,19 +1,24 @@
 define([
     "dojo/_base/declare",
     "dojo/_base/lang",
+    "dojo/dom-class",
     "dojo/on",
     "dojo/request/xhr",
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
     "dojo/text!./templates/IntroWidget.html"
-], function(declare, lang, on, xhr, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, template) {
+], function(declare, lang, domClass, on, xhr, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, template) {
     return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
         baseClass: "introWidget",
         templateString: template,
         title: "",
         startup: function() {
             this.inherited(arguments);
+
+            on(this.buttonHint1, "click", lang.hitch(this, function(event) {
+                domClass.add(this.hint1, "open");
+            }));
 
             on(this.buttonExecuteSQL, "click", lang.hitch(this, function(event) {
                 let sqltext = this.inputSQL.value;

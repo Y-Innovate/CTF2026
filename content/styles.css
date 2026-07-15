@@ -231,7 +231,7 @@ h1 span{color:var(--corrupt);}
     background:var(--bg);
     border:1px dashed var(--amber-faint);
     border-radius:var(--radius);
-    display: flex;
+    display: block;
     padding:14px;
     margin:12px 0;
     font-size:clamp(13px,3.2vw,16px);
@@ -243,6 +243,7 @@ h1 span{color:var(--corrupt);}
 
 .payload img {
     margin-right: 10px;
+    float: left;
 }
 
 .meta-note{
