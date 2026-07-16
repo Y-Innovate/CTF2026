@@ -4,3 +4,5 @@
 /python/**  zos-working-tree-encoding=UTF-8
 
 *.jpg  binary
+*.gif  binary
+*.png  binary
