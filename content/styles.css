@@ -412,6 +412,16 @@ footer{
     cursor:pointer;
 }
 
+.myNumberSpinner {
+    border: 1px solid var(--amber-faint);
+    width: 5em;
+}
+
+.myNumberSpinner .dijitUpArrowButton,
+.myNumberSpinner .dijitDownArrowButton {
+  background-color: var(--amber);
+}
+
 @media (max-width:520px){
     .progress-row{gap:6px;}
     .answer-row{flex-direction:column;}
