@@ -231,7 +231,7 @@ h1 span{color:var(--corrupt);}
     background:var(--bg);
     border:1px dashed var(--amber-faint);
     border-radius:var(--radius);
-    display: flex;
+    display: block;
     padding:14px;
     margin:12px 0;
     font-size:clamp(13px,3.2vw,16px);
@@ -243,6 +243,7 @@ h1 span{color:var(--corrupt);}
 
 .payload img {
     margin-right: 10px;
+    float: left;
 }
 
 .meta-note{
@@ -409,6 +410,16 @@ footer{
     font-family:inherit; font-weight:700; font-size:12px;
     letter-spacing:0.1em; padding:10px 20px; border-radius:var(--radius);
     cursor:pointer;
+}
+
+.myNumberSpinner {
+    border: 1px solid var(--amber-faint);
+    width: 5em;
+}
+
+.myNumberSpinner .dijitUpArrowButton,
+.myNumberSpinner .dijitDownArrowButton {
+  background-color: var(--amber);
 }
 
 @media (max-width:520px){

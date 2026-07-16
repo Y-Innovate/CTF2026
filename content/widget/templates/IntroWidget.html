@@ -7,7 +7,9 @@
     <p class="meta-note">Welcome detective <b><span data-dojo-attach-point="spanNickname2"></span></b>. You're needed straight away on a highly confidential case: the panels on our beloved IBM Z mainframe have been defaced as you can see in the photo below taken at the crime scene:</p>
     <img src="widget/templates/images/nomorez_sepia.jpg" class="largepic"/>
     <p class="meta-note">Our first objective is to compile a list of suspects. Everyone that enters or exits the computer room in our data center is logged. That data is kept for 14 days. The Z-vandal however managed to hack the DB2 table containing those log entries and seems to have messed with the timestamps of the last 2 days. Below is the query we normally use, the most recent accounts to have entered the computer room were two investigators with guest badges DG0001 and DG0002 and the employee that let us in. Please help us find the badge numbers that were used in the past 2 days.</p>
-    <div class="payload"><code>SELECT ACCTIME, TIMESTAMP('1970-01-01') + ACCTIME SECONDS + CURRENT TIMEZONE, INOROUT, USERID FROM CTF2026.ACCLOG ORDER BY ACCTIME DESC</code></div>
+    <div class="payload"><code>SELECT ACCTIME, INOROUT, USERID FROM CTF2026.ACCLOG ORDER BY ACCTIME DESC</code></div>
+    <button class="hint-toggle" data-dojo-attach-point="buttonHint1">REVEAL HINT</button>
+    <div class="hint-body" data-dojo-attach-point="hint1">To convert Unix epoch timestamps to local time use TIMESTAMP('1970-01-01') + ACCTIME SECONDS + CURRENT TIMEZONE</div>
     <div class="answer-row">
         <textarea id="inputSQL" data-dojo-attach-point="inputSQL" placeholder="ENTER SQL QUERY" autocomplete="off" spellcheck="false"></textarea>
         <button data-dojo-attach-point="buttonExecuteSQL">EXECUTE</button>
