@@ -1,6 +1,6 @@
 *  zos-working-tree-encoding=ISO8859-1
 
-/content/*  zos-working-tree-encoding=UTF-8
-/python/*  zos-working-tree-encoding=UTF-8
+/content/**  zos-working-tree-encoding=UTF-8
+/python/**  zos-working-tree-encoding=UTF-8
 
 *.jpg  binary
