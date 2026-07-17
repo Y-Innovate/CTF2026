@@ -104,9 +104,18 @@ define([
                     this.spanNickname2.innerText = data.nickname;
                 }
 
-                if (data && data.introDone && data.introDone == "Y") {
-                    this.buttonSkip.style.display = "inline";
-                    this.fragmentResolved();
+                if (data && data.fragmentsResolved && Array.isArray(data.fragmentsResolved)) {
+                    let introDone = false;
+
+                    for (i = 0; i < data.fragmentsResolved.length && !introDone; i++) {
+                        if (data.fragmentsResolved[i].fragment && data.fragmentsResolved[i].fragment == "INTRO")
+                            introDone = true;
+                    }
+
+                    if (introDone) {
+                        this.buttonSkip.style.display = "inline";
+                        this.fragmentResolved();
+                    }
                 }
             }), lang.hitch(this, function(err) {
                 console.log(err);

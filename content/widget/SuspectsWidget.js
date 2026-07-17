@@ -27,8 +27,17 @@ define([
                 preventCache: true,
                 sync: true
             }).then(lang.hitch(this, function(data) {
-                if (!data || !data.introDone || data.introDone != "Y") {
-                    location.href = "index.html";
+                if (data && data.fragmentsResolved && Array.isArray(data.fragmentsResolved)) {
+                    let introDone = false;
+
+                    for (i = 0; i < data.fragmentsResolved.length && !introDone; i++) {
+                        if (data.fragmentsResolved[i].fragment && data.fragmentsResolved[i].fragment == "INTRO")
+                            introDone = true;
+                    }
+
+                    if (!introDone) {
+                        location.href = "index.html";
+                    }
                 }
                 if (data && data.nickname) {
                     this.spanNickname1.innerText = data.nickname;
