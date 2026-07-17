@@ -203,31 +203,32 @@
                  MOVE W-USERID TO USERID OF W-LCTFM003
                  MOVE 'INTRO' TO FRAGMENT OF W-LCTFM003
 
-                 MOVE 'S' TO OPCODE OF W-LCTFM003
+                 MOVE 'R' TO OPCODE OF W-LCTFM003
 
                  MOVE 'CTFM003' TO W-PGMNAME
 
                  CALL W-PGMNAME USING W-LCTFM003
 
-                 IF RETURNCODE OF W-LCTFM003 = '00'
+                 IF RETURNCODE OF W-LCTFM003 = '04'
+                 OR RETURNCODE OF W-LCTFM003 = '04'
+                    MOVE 'C' TO OPCODE OF W-LCTFM003
+
                     IF W-HINT-USED = '1'
                        MOVE 5 TO POINTS OF W-LCTFM003
                     ELSE
                        MOVE 10 TO POINTS OF W-LCTFM003
                     END-IF
 
-                    MOVE 'I' TO OPCODE OF W-LCTFM003
-
                     CALL W-PGMNAME USING W-LCTFM003
-                 END-IF
 
-                 IF RETURNCODE OF W-LCTFM003 NOT = '00'
-                    DISPLAY 'CTFW002 CTFM003 '
-                            RETURNCODE OF W-LCTFM003 ' '
-                            REASONCODE OF W-LCTFM003 ' '
-                            INFOMESSAGE OF W-LCTFM003
+                    IF RETURNCODE OF W-LCTFM003 NOT = '00'
+                       DISPLAY 'CTFW002 CTFM003 '
+                               RETURNCODE OF W-LCTFM003 ' '
+                               REASONCODE OF W-LCTFM003 ' '
+                               INFOMESSAGE OF W-LCTFM003
 
-                    SET SW-LIST-INCORRECT TO TRUE
+                       SET SW-LIST-INCORRECT TO TRUE
+                    END-IF
                  END-IF
               ELSE
                  DISPLAY 'CTFW002 CTFM001 '
