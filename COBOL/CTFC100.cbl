@@ -56,6 +56,8 @@
            COPY LCTFC100.
        01  W-LCTFM001.
            COPY LCTFM001.
+       01  W-LCTFM004.
+           COPY LCTFM004.
        01  W-LINKPAR.
            COPY LINKPAR.
 
@@ -84,6 +86,8 @@
               SET ADDRESS OF P-CHAR TO W-CONT-POINTER
               MOVE P-CHAR(1:W-CONT-LENGTH) TO W-LCTFC100
            END-IF
+
+           MOVE 0 TO FRAGMENT-COUNT OF W-LCTFC100
 
            MOVE C-CHNL-NAME-LWW    TO W-CHNL-NAME
            MOVE C-CONT-NAME-LWW-00 TO W-CONT-NAME
@@ -123,11 +127,39 @@
                          NICKNAME-LEN OF W-LCTFM001) TO
                       NICKNAME-TEXT OF W-LCTFC100
               END-IF
-              MOVE INTRODONE OF W-LCTFM001 TO INTRODONE OF W-LCTFC100
-           ELSE
-              IF RETURNCODE OF W-LCTFM001 = N'04'
-                 MOVE N'N' TO INTRODONE OF W-LCTFC100
+
+              MOVE W-USERID TO USERID OF W-LCTFM004
+
+              MOVE 'CTFM004' TO W-PGMNAME
+
+              CALL W-PGMNAME USING W-LCTFM004
+
+              IF RETURNCODE OF W-LCTFM004 = '00'
+                 MOVE FRAGMENT-COUNT OF W-LCTFM004 TO
+                      FRAGMENT-COUNT OF W-LCTFC100
+
+                 PERFORM VARYING FRAGMENT-COUNT OF W-LCTFM004
+                    FROM 1 BY 1
+                   UNTIL FRAGMENT-COUNT OF W-LCTFM004 >
+                         FRAGMENT-COUNT OF W-LCTFC100
+                    MOVE FRAGMENT OF W-LCTFM004(
+                            FRAGMENT-COUNT OF W-LCTFM004) TO
+                         FRAGMENT OF W-LCTFC100(
+                            FRAGMENT-COUNT OF W-LCTFM004)
+                    MOVE POINTS OF W-LCTFM004(
+                            FRAGMENT-COUNT OF W-LCTFM004) TO
+                         POINTS OF W-LCTFC100(
+                            FRAGMENT-COUNT OF W-LCTFM004)
+                 END-PERFORM
               ELSE
+                 IF RETURNCODE OF W-LCTFM004 NOT = '04'
+                    MOVE 500 TO STSCODE OF W-LINKPAR
+                    MOVE 21  TO STSTXTL OF W-LINKPAR
+                    MOVE 'Internal Server Error' TO STSTXTT OF W-LINKPAR
+                 END-IF
+              END-IF
+           ELSE
+              IF RETURNCODE OF W-LCTFM001 NOT = N'04'
                  MOVE 500 TO STSCODE OF W-LINKPAR
                  MOVE 21  TO STSTXTL OF W-LINKPAR
                  MOVE 'Internal Server Error' TO STSTXTT OF W-LINKPAR

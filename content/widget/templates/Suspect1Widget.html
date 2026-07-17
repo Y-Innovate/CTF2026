@@ -1,30 +1,38 @@
 <div>
-    <img src="widget/templates/images/icubobsmall.jpg"/>
-    Details about ICU Bob
-    <p class="meta-note">I've analyzed ICU Bob's emails, group chats and social media posts.</p>
-    <p class="meta-note">ICU Bob has shown open criticism to IBM in his social media posts, but at the same time seems overly enamored with the Z platform, so there's no conclusive trail to follow there.</p>
-    <p class="meta-note">I then went through ICU Bob's change management activities and support tickets. Turns out he's been known to enter the computer room with no apparent reason and several colleagues have commented on how he just 'sits there and looks at the pretty lights'. Although definitely weird and note worthy, it doesn't point to a proclivity for vandalizing IT infrastructure.</p>
-    <p class="meta-note">Finally I scanned ICU Bob's personal data sets and source code he authored and there I found something suspicious. He seems to enjoy writing assembler code, which is suspicious enough already, and he's left these same cryptic lines in each of his sources:</p>
-    <div class="payload"><code>* B23270B51030B5B09038   Rotate left 10 bits<br/>
+    <div class="frag-head">
+        <div>
+            <div class="frag-title">SUSPECT 1: ICU Bob</div>
+        </div>
+        <div class="frag-status" data-dojo-id="status1" data-dojo-attach-point="status1">LOCKED</div>
+    </div>
+    <div class="payload">
+        <img src="widget/templates/images/icubobsmall.jpg"/>
+        Details about ICU Bob
+        <p class="meta-note">I've analyzed ICU Bob's emails, group chats and social media posts.</p>
+        <p class="meta-note">ICU Bob has shown open criticism to IBM in his social media posts, but at the same time seems overly enamored with the Z platform, so there's no conclusive trail to follow there.</p>
+        <p class="meta-note">I then went through ICU Bob's change management activities and support tickets. Turns out he's been known to enter the computer room with no apparent reason and several colleagues have commented on how he just 'sits there and looks at the pretty lights'. Although definitely weird and note worthy, it doesn't point to a proclivity for vandalizing IT infrastructure.</p>
+        <p class="meta-note">Finally I scanned ICU Bob's personal data sets and source code he authored and there I found something suspicious. He seems to enjoy writing assembler code, which is suspicious enough already, and he's left these same cryptic lines in each of his sources:</p>
+        <div class="payload"><code>* B23270B51030B5B09038   Rotate left 10 bits<br/>
 * 680B6D2BFE2868AF7F09   Exclusive or with BEEFBEEFBEEFBEEFBEEF<br/>
 * D0D6819281CD83C48183   Rotate right 9 bits<br/>
 * 8C5C9D5C046C9C9D2E3E   Swap nibbles</code></div>
-    <p class="meta-note">I've concluded the hex strings are probably 'encrypted' by performing the bitwise operations but I was unable to produce readable text so I installed some plugins to help you perform those bitwise operations:</p>
-    <div class="answer-row">
-        <button data-dojo-attach-point="buttonRotate">ROTATE</button>&nbsp;<input type="text" class="myNumberSpinner" data-dojo-attach-point="myNumberSpinner" data-dojo-type="dijit/form/NumberSpinner" data-dojo-props="constraints:{min:-10, max:10, places:0}, value:0"/>
-        &nbsp;&nbsp;&nbsp;<button data-dojo-attach-point="buttonXOR">XOR</button>
-        &nbsp;&nbsp;&nbsp;<button data-dojo-attach-point="buttonNibbles">SWAP NIBBLES</button>
+        <p class="meta-note">I've concluded the hex strings are probably 'encrypted' by performing the bitwise operations but I was unable to produce readable text so I installed some plugins to help you perform those bitwise operations:</p>
+        <div class="answer-row">
+            <button data-dojo-attach-point="buttonRotate">ROTATE</button>&nbsp;<input type="text" class="myNumberSpinner" data-dojo-attach-point="myNumberSpinner" data-dojo-type="dijit/form/NumberSpinner" data-dojo-props="constraints:{min:-10, max:10, places:0}, value:0"/>
+            &nbsp;&nbsp;&nbsp;<button data-dojo-attach-point="buttonXOR">XOR</button>
+            &nbsp;&nbsp;&nbsp;<button data-dojo-attach-point="buttonNibbles">SWAP NIBBLES</button>
+        </div>
+        <div class="answer-row">
+            <input id="inputWork1" data-dojo-attach-point="inputWork1" maxlength="20" placeholder="ENTER HEXADECIMAL STRING" autocomplete="off" spellcheck="false"/>
+        </div>
+        <div class="hint-body" data-dojo-attach-point="feedbackHint1"><code id="feedback1" data-dojo-attach-point="feedback1"></code></div>
+        <button class="hint-toggle" data-dojo-attach-point="buttonHint1">REVEAL HINT</button>
+        <div class="hint-body" data-dojo-attach-point="hint1">These strings were found on the mainframe, so they're in EBCDIC. I'll show the translated values.</div>
+        <p class="meta-note">Once you've successfully decrypted all 4 strings, please add them together in the answer box below.</p>
+        <div class="final-row">
+            <input type="text" id="inputAnswer1" data-dojo-attach-point="inputAnswer1" placeholder="ENTER YOUR DECRYPTED ANSWER" autocomplete="off" spellcheck="false">
+            <button data-dojo-attach-point="buttonFinalInput1">TRANSMIT</button>
+        </div>
+        <div class="final-feedback" data-dojo-attach-point="finalFeedback1"></div>
     </div>
-    <div class="answer-row">
-        <input id="inputWork1" data-dojo-attach-point="inputWork1" maxlength="20" placeholder="ENTER HEXADECIMAL STRING" autocomplete="off" spellcheck="false"/>
-    </div>
-    <div class="hint-body" data-dojo-attach-point="feedbackHint1"><code id="feedback1" data-dojo-attach-point="feedback1"></code></div>
-    <button class="hint-toggle" data-dojo-attach-point="buttonHint1">REVEAL HINT</button>
-    <div class="hint-body" data-dojo-attach-point="hint1">These string were found on the mainframe, so they're in EBCDIC. I'll show the translated values.</div>
-    <p class="meta-note">Once you've successfully decrypted all 4 strings, please add them together in the answer box below.</p>
-    <div class="final-row">
-        <input type="text" id="inputAnswer1" data-dojo-attach-point="inputAnswer1" placeholder="ENTER YOUR DECRYPTED ANSWER" autocomplete="off" spellcheck="false">
-        <button data-dojo-attach-point="buttonFinalInput1">TRANSMIT</button>
-    </div>
-    <div class="final-feedback" data-dojo-attach-point="finalFeedback1"></div>
 </div>

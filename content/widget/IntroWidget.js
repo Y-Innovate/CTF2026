@@ -16,6 +16,8 @@ define([
         startup: function() {
             this.inherited(arguments);
 
+            this.buttonSkip.style.display = "none";
+
             on(this.buttonHint1, "click", lang.hitch(this, function(event) {
                 domClass.add(this.hint1, "open");
             }));
@@ -88,6 +90,10 @@ define([
                 }
             }));
 
+            on(this.buttonSkip, "click", function(event) {
+                location.href = "suspects.html";
+            });
+
             xhr("API/v1/loginInfo", {
                 handleAs: "json",
                 preventCache: true,
@@ -97,9 +103,18 @@ define([
                     this.spanNickname1.innerText = data.nickname;
                     this.spanNickname2.innerText = data.nickname;
                 }
+
+                if (data && data.introDone && data.introDone == "Y") {
+                    this.buttonSkip.style.display = "inline";
+                    this.fragmentResolved();
+                }
             }), lang.hitch(this, function(err) {
                 console.log(err);
             }));
+        },
+        fragmentResolved: function() {
+            this.status1.innerText = "RESOLVED";
+            domClass.add(this.fragment1, "solved");
         }
     });
 });
