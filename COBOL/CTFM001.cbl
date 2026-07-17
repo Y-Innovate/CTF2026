@@ -154,7 +154,6 @@
                      (USERID,
                       NICKNAME,
                       EMAIL,
-                      INTRODONE,
                       CREATEDBY,
                       CREATEDDATE,
                       UPDATEDBY,
@@ -162,7 +161,6 @@
               VALUES(:DCLDETECTIV.USERID,
                      :DCLDETECTIV.NICKNAME,
                      :DCLDETECTIV.EMAIL,
-                     :DCLDETECTIV.INTRODONE,
                      :DCLDETECTIV.CREATEDBY,
                      CURRENT TIMESTAMP,
                      :DCLDETECTIV.UPDATEDBY,
@@ -205,14 +203,12 @@
            EXEC SQL
               SELECT NICKNAME,
                      EMAIL,
-                     INTRODONE,
                      CREATEDBY,
                      CREATEDDATE,
                      UPDATEDBY,
                      UPDATEDDATE
                 INTO :DCLDETECTIV.NICKNAME,
                      :DCLDETECTIV.EMAIL,
-                     :DCLDETECTIV.INTRODONE,
                      :DCLDETECTIV.CREATEDBY,
                      :DCLDETECTIV.CREATEDDATE,
                      :DCLDETECTIV.UPDATEDBY,
@@ -239,8 +235,6 @@
                          EMAIL-LEN OF DCLDETECTIV) TO
                       EMAIL-TEXT OF W-LCTFM001
               END-IF
-              MOVE INTRODONE   OF DCLDETECTIV TO
-                   INTRODONE OF W-LCTFM001
               MOVE CREATEDBY   OF DCLDETECTIV TO
                    CREATEDBY   OF W-LCTFM001
               MOVE CREATEDDATE OF DCLDETECTIV TO
@@ -283,7 +277,6 @@
               UPDATE DETECTIV
                  SET NICKNAME    = :DCLDETECTIV.NICKNAME,
                      EMAIL       = :DCLDETECTIV.EMAIL,
-                     INTRODONE   = :DCLDETECTIV.INTRODONE,
                      UPDATEDBY   = :DCLDETECTIV.UPDATEDBY,
                      UPDATEDDATE = CURRENT TIMESTAMP
                WHERE USERID      = :DCLDETECTIV.USERID
@@ -369,7 +362,6 @@
                       EMAIL-LEN OF W-LCTFM001) TO
                    EMAIL-TEXT OF DCLDETECTIV
            END-IF
-           MOVE INTRODONE OF W-LCTFM001 TO INTRODONE OF DCLDETECTIV
            MOVE CREATEDBY OF W-LCTFM001 TO CREATEDBY OF DCLDETECTIV
            MOVE FUNCTION DISPLAY-OF(CREATEDDATE OF W-LCTFM001) TO
               CREATEDDATE OF DCLDETECTIV

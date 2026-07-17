@@ -10,7 +10,6 @@
              10 EMAIL.
                 49 EMAIL-LEN      PIC S9(4) USAGE COMP-5.
                 49 EMAIL-TEXT     PIC N(128).
-             10 INTRODONE         PIC N.
              10 CREATEDBY         PIC N(08).
              10 CREATEDDATE       PIC N(26).
              10 UPDATEDBY         PIC N(08).

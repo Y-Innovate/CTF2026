@@ -1,9 +1,8 @@
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. CTFW002.
+       PROGRAM-ID. CTFW003.
       *===============================================================*
       * This program is a WEB program for the CTF2026 app. It tests   *
-      * a list of suspects submitted in the IntroWidget and if valid  *
-      * it updates the current user's DETECTIV row.                   *
+      * an answer to one of the suspects' puzzle questions.           *
       * ------------------------------------------------------------- *
       * Updates:                                                      *
       *                                                               *
@@ -35,10 +34,6 @@
                88  SW-CONT-FOUND               VALUE 'Y'.
                88  SW-CONT-MISSING             VALUE 'N'.
 
-           05  SW-LIST-CORRECT-VAL   PIC X     VALUE 'Y'.
-               88  SW-LIST-CORRECT             VALUE 'Y'.
-               88  SW-LIST-INCORRECT           VALUE 'N'.
-
            05  MSGSTR.
                10  Vstring-length    PIC S9(4) BINARY.
                10  Vstring-text.
@@ -61,10 +56,14 @@
                    15  Facility-ID     PIC XXX.
                10  I-S-Info            PIC S9(9) BINARY.
 
-       01  W-SUSPECT-TABLE.
+       01  W-SUSPECT-ANSWERS.
            05  W-HINT-USED           PIC X.
-           05  W-SUSPECT-IDX         PIC S9(4) COMP-5.
-           05  W-SUSPECT             PIC X(64) OCCURS 3 TIMES.
+           05  W-SUSPECT-ANSWER-GRP.
+               10  W-SUSPECT-ANSWER1 PIC X  VALUE SPACE.
+               10  W-SUSPECT-ANSWER2 PIC X  VALUE SPACE.
+               10  W-SUSPECT-ANSWER3 PIC X  VALUE SPACE.
+           05  W-SUSPECT-ANSWER-STR REDEFINES W-SUSPECT-ANSWER-GRP
+                                     PIC X(3).
 
        01  W-LCTFM001.
            COPY LCTFM001.
@@ -80,7 +79,7 @@
        MAIN SECTION.
            PERFORM R001-INIT
 
-           PERFORM R005-CHECK-SUSPECTS
+           PERFORM R005-CHECK-ANSWER
 
            PERFORM R009-FINISH
            .
@@ -89,8 +88,6 @@
       * R001-INIT: Program initialisations                            *
       *===============================================================*
        R001-INIT SECTION.
-           SET SW-LIST-CORRECT TO TRUE
-
            MOVE C-CHNL-NAME-LWW    TO W-CHNL-NAME
            MOVE C-CONT-NAME-LWW-00 TO W-CONT-NAME
 
@@ -105,17 +102,11 @@
            EXIT.
 
       *===============================================================*
-      * R005-CHECK-SUSPECTS: Check list of submitted suspects         *
+      * R005-CHECK-ANSWER: Check suspect puzzle answer                *
       *===============================================================*
-       R005-CHECK-SUSPECTS SECTION.
+       R005-CHECK-ANSWER SECTION.
            MOVE '0' TO W-HINT-USED
-
-           PERFORM VARYING W-SUSPECT-IDX FROM 1 BY 1
-             UNTIL W-SUSPECT-IDX > 3
-              MOVE SPACES TO W-SUSPECT(W-SUSPECT-IDX)
-           END-PERFORM
-
-           MOVE 0 TO W-SUSPECT-IDX
+           MOVE SPACES TO W-SUSPECT-ANSWER-STR
 
            EXEC CICS
               WEB STARTBROWSE FORMFIELD
@@ -134,17 +125,22 @@
                               NOHANDLE
               END-EXEC
 
-              PERFORM UNTIL EIBRESP NOT = DFHRESP(NORMAL)
-                   OR SW-LIST-INCORRECT
-                 IF  W-FF-NAMELEN = 15
-                 AND W-FF-NAME(1:15) = 'checked_suspect'
-                    IF W-SUSPECT-IDX < 3
-                       ADD 1 TO W-SUSPECT-IDX
-                       MOVE W-FF-VALUE(1:W-FF-VALUELEN) TO
-                            W-SUSPECT(W-SUSPECT-IDX)
-                    ELSE
-                       SET SW-LIST-INCORRECT TO TRUE
-                    END-IF
+              PERFORM
+                UNTIL EIBRESP NOT = DFHRESP(NORMAL)
+                   OR W-SUSPECT-ANSWER-STR NOT = SPACES
+                 IF W-FF-NAMELEN = 16
+                    EVALUATE TRUE
+                       WHEN W-FF-NAME(1:16) = 'answer_suspect_1'
+                          IF  W-FF-VALUELEN = 40
+                          AND W-FF-VALUE(1:40) = 'IBM BOB SHOULD GO AWAY
+      -    ', I WAS HERE FIRST'
+                             MOVE 'Y' TO W-SUSPECT-ANSWER1
+                          END-IF
+                       WHEN W-FF-NAME(1:16) = 'answer_suspect_2'
+                          CONTINUE
+                       WHEN W-FF-NAME(1:16) = 'answer_suspect_3'
+                          CONTINUE
+                    END-EVALUATE
                  ELSE
                     IF  W-FF-NAMELEN = 9
                     AND W-FF-NAME(1:9) = 'hint_used'
@@ -169,23 +165,9 @@
               END-EXEC
            END-IF
 
-           IF SW-LIST-CORRECT
-              IF W-SUSPECT-IDX = 3
-                 PERFORM VARYING W-SUSPECT-IDX FROM 1 BY 1
-                   UNTIL W-SUSPECT-IDX > 3
-                      OR SW-LIST-INCORRECT
-                    IF  W-SUSPECT(W-SUSPECT-IDX) NOT = 'DC0442'
-                    AND W-SUSPECT(W-SUSPECT-IDX) NOT = 'DC0467'
-                    AND W-SUSPECT(W-SUSPECT-IDX) NOT = 'DC0511'
-                       SET SW-LIST-INCORRECT TO TRUE
-                    END-IF
-                 END-PERFORM
-              ELSE
-                 SET SW-LIST-INCORRECT TO TRUE
-              END-IF
-           END-IF
-
-           IF SW-LIST-CORRECT
+           IF W-SUSPECT-ANSWER1 = 'Y'
+           OR W-SUSPECT-ANSWER2 = 'Y'
+           OR W-SUSPECT-ANSWER3 = 'Y'
               EXEC CICS
                  ASSIGN USERID(W-USERID)
               END-EXEC
@@ -201,7 +183,7 @@
 
               IF RETURNCODE OF W-LCTFM001 = N'00'
                  MOVE W-USERID TO USERID OF W-LCTFM003
-                 MOVE 'INTRO' TO FRAGMENT OF W-LCTFM003
+                 MOVE 'SUSPECT1' TO FRAGMENT OF W-LCTFM003
 
                  MOVE 'R' TO OPCODE OF W-LCTFM003
 
@@ -222,25 +204,27 @@
                     CALL W-PGMNAME USING W-LCTFM003
 
                     IF RETURNCODE OF W-LCTFM003 NOT = '00'
-                       DISPLAY 'CTFW002 CTFM003 '
+                       DISPLAY 'CTFW003 CTFM003 '
                                RETURNCODE OF W-LCTFM003 ' '
                                REASONCODE OF W-LCTFM003 ' '
                                INFOMESSAGE OF W-LCTFM003
 
-                       SET SW-LIST-INCORRECT TO TRUE
+                       MOVE SPACES TO W-SUSPECT-ANSWER-STR
                     END-IF
                  END-IF
               ELSE
-                 DISPLAY 'CTFW002 CTFM001 '
+                 DISPLAY 'CTFW003 CTFM001 '
                          RETURNCODE OF W-LCTFM001 ' '
                          REASONCODE OF W-LCTFM001 ' '
                          INFOMESSAGE OF W-LCTFM001
 
-                 SET SW-LIST-INCORRECT TO TRUE
+                 MOVE SPACES TO W-SUSPECT-ANSWER-STR
               END-IF
            END-IF
 
-           IF SW-LIST-CORRECT
+           IF W-SUSPECT-ANSWER1 = 'Y'
+           OR W-SUSPECT-ANSWER2 = 'Y'
+           OR W-SUSPECT-ANSWER3 = 'Y'
               MOVE 'true' TO W-FF-VALUE
               MOVE 4 TO W-FF-VALUELEN
            ELSE
@@ -250,13 +234,13 @@
 
            EXEC CICS
               DOCUMENT SET DOCTOKEN(DTOKEN)
-                           SYMBOL('LISTCORRECT')
+                           SYMBOL('ANSWERCORRECT')
                            VALUE(W-FF-VALUE)
                            LENGTH(W-FF-VALUELEN)
                            NOHANDLE
            END-EXEC
            .
-       R005-CHECK-SUSPECTS-END.
+       R005-CHECK-ANSWER-END.
            EXIT.
 
       *===============================================================*
@@ -300,4 +284,4 @@
            .
        R910-GET-CONTAINER-END.
            EXIT.
-       END PROGRAM CTFW002.
+       END PROGRAM CTFW003.

@@ -64,27 +64,33 @@ define([
             }));
 
             on(this.buttonRotate, "click", lang.hitch(this, function(event) {
-                const rotateBits = this.myNumberSpinner.value;
+                if (this.inputWork1.value.length > 0) {
+                    const rotateBits = this.myNumberSpinner.value;
 
-                if (rotateBits > 0) {
-                    this.inputWork1.value = this.rotateRight(this.inputWork1.value, rotateBits).toUpperCase();
-                } else if (rotateBits < 0) {
-                    this.inputWork1.value = this.rotateLeft(this.inputWork1.value, Math.abs(rotateBits)).toUpperCase();
+                    if (rotateBits > 0) {
+                        this.inputWork1.value = this.rotateRight(this.inputWork1.value, rotateBits).toUpperCase();
+                    } else if (rotateBits < 0) {
+                        this.inputWork1.value = this.rotateLeft(this.inputWork1.value, Math.abs(rotateBits)).toUpperCase();
+                    }
+
+                    this.inputWork1.dispatchEvent(new Event("input"));
                 }
-
-                this.inputWork1.dispatchEvent(new Event("input"));
             }));
 
             on(this.buttonXOR, "click", lang.hitch(this, function(event) {
-                this.inputWork1.value = this.xorHex(this.inputWork1.value, "BEEFBEEFBEEFBEEFBEEF").toUpperCase();
+                if (this.inputWork1.value.length > 0) {
+                    this.inputWork1.value = this.xorHex(this.inputWork1.value, "BEEFBEEFBEEFBEEFBEEF").toUpperCase();
 
-                this.inputWork1.dispatchEvent(new Event("input"));
+                    this.inputWork1.dispatchEvent(new Event("input"));
+                }
             }));
 
             on(this.buttonNibbles, "click", lang.hitch(this, function(event) {
-                this.inputWork1.value = this.swapNibbles(this.inputWork1.value).toUpperCase();
+                if (this.inputWork1.value.length > 0) {
+                    this.inputWork1.value = this.swapNibbles(this.inputWork1.value).toUpperCase();
 
-                this.inputWork1.dispatchEvent(new Event("input"));
+                    this.inputWork1.dispatchEvent(new Event("input"));
+                }
             }));
 
             on(this.buttonFinalInput1, "click", lang.hitch(this, function(event) {

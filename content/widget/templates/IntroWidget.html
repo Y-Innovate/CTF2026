@@ -1,8 +1,9 @@
-<div class="fragment" id="fragment1">
+<div class="fragment" data-dojo-attach-point="fragment1">
     <div class="frag-head">
         <div>
             <div class="frag-title">Welcome aboard <span data-dojo-attach-point="spanNickname1"></span></div>
         </div>
+        <div class="frag-status" data-dojo-id="status1" data-dojo-attach-point="status1">LOCKED</div>
     </div>
     <p class="meta-note">Welcome detective <b><span data-dojo-attach-point="spanNickname2"></span></b>. You're needed straight away on a highly confidential case: the panels on our beloved IBM Z mainframe have been defaced as you can see in the photo below taken at the crime scene:</p>
     <img src="widget/templates/images/nomorez_sepia.jpg" class="largepic"/>
@@ -30,6 +31,7 @@
     </ul>
     <div class="final-row">
         <button data-dojo-attach-point="buttonFinalInput">TRANSMIT</button>
+        <button data-dojo-attach-point="buttonSkip">SKIP</button>
         <div class="final-feedback" data-dojo-attach-point="finalFeedback"></div>
     </div>
 </div>
