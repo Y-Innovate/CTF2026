@@ -148,7 +148,7 @@
                  ELSE
                     IF  W-FF-NAMELEN = 9
                     AND W-FF-NAME(1:9) = 'hint_used'
-                       IF  W-FF-VALUELEN=1
+                       IF  W-FF-VALUELEN = 1
                        AND W-FF-VALUE(1:1) = '1'
                           MOVE '1' TO W-HINT-USED
                        END-IF

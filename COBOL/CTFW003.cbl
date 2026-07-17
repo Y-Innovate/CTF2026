@@ -62,7 +62,7 @@
                10  W-SUSPECT-ANSWER1 PIC X  VALUE SPACE.
                10  W-SUSPECT-ANSWER2 PIC X  VALUE SPACE.
                10  W-SUSPECT-ANSWER3 PIC X  VALUE SPACE.
-           05  W-SUSPECT-ANSWER-STR REDEFINED W-SUSPECT-ANSWER-GRP
+           05  W-SUSPECT-ANSWER-STR REDEFINES W-SUSPECT-ANSWER-GRP
                                      PIC X(3).
 
        01  W-LCTFM001.
@@ -88,8 +88,6 @@
       * R001-INIT: Program initialisations                            *
       *===============================================================*
        R001-INIT SECTION.
-           SET SW-LIST-CORRECT TO TRUE
-
            MOVE C-CHNL-NAME-LWW    TO W-CHNL-NAME
            MOVE C-CONT-NAME-LWW-00 TO W-CONT-NAME
 
@@ -108,6 +106,7 @@
       *===============================================================*
        R005-CHECK-ANSWER SECTION.
            MOVE '0' TO W-HINT-USED
+           MOVE SPACES TO W-SUSPECT-ANSWER-STR
 
            EXEC CICS
               WEB STARTBROWSE FORMFIELD
@@ -135,7 +134,7 @@
                           IF  W-FF-VALUELEN = 40
                           AND W-FF-VALUE(1:40) = 'IBM BOB SHOULD GO AWAY
       -    ', I WAS HERE FIRST'
-                             W-SUSPECT-ANSWER1 = 'Y'
+                             MOVE 'Y' TO W-SUSPECT-ANSWER1
                           END-IF
                        WHEN W-FF-NAME(1:16) = 'answer_suspect_2'
                           CONTINUE
@@ -145,7 +144,7 @@
                  ELSE
                     IF  W-FF-NAMELEN = 9
                     AND W-FF-NAME(1:9) = 'hint_used'
-                       IF  W-FF-VALUELEN=1
+                       IF  W-FF-VALUELEN = 1
                        AND W-FF-VALUE(1:1) = '1'
                           MOVE '1' TO W-HINT-USED
                        END-IF
@@ -210,7 +209,7 @@
                                REASONCODE OF W-LCTFM003 ' '
                                INFOMESSAGE OF W-LCTFM003
 
-                       SET SW-LIST-INCORRECT TO TRUE
+                       MOVE SPACES TO W-SUSPECT-ANSWER-STR
                     END-IF
                  END-IF
               ELSE
@@ -219,11 +218,13 @@
                          REASONCODE OF W-LCTFM001 ' '
                          INFOMESSAGE OF W-LCTFM001
 
-                 SET SW-LIST-INCORRECT TO TRUE
+                 MOVE SPACES TO W-SUSPECT-ANSWER-STR
               END-IF
            END-IF
 
-           IF SW-LIST-CORRECT
+           IF W-SUSPECT-ANSWER1 = 'Y'
+           OR W-SUSPECT-ANSWER2 = 'Y'
+           OR W-SUSPECT-ANSWER3 = 'Y'
               MOVE 'true' TO W-FF-VALUE
               MOVE 4 TO W-FF-VALUELEN
            ELSE
