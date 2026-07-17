@@ -1,10 +1,10 @@
--- Create detective table in CTF2026 database.
+-- Create access log table in CTF2026 database.
 
 -- Set SQLID
    SET CURRENT SQLID='CTF2026';
 
--- Create detective tablespace
-   CREATE TABLESPACE TSDETECT
+-- Create accesslog tablespace
+   CREATE TABLESPACE TSACCLOG
                        IN DBCTF26
                        USING STOGROUP SGCTF26
                        PRIQTY 40 SECQTY 40
@@ -26,18 +26,14 @@
                        MAXROWS 255
                        INSERT ALGORITHM 0;
 
--- Create detective table
-   CREATE TABLE CTF2026.DETECTIV
-      (USERID      GRAPHIC(8)      NOT NULL,
-       NICKNAME    VARGRAPHIC(128) NOT NULL,
-       EMAIL       VARGRAPHIC(128) NOT NULL,
-       CREATEDBY   GRAPHIC(8)      NOT NULL,
-       CREATEDDATE TIMESTAMP       NOT NULL,
-       UPDATEDBY   GRAPHIC(8)      NOT NULL,
-       UPDATEDDATE TIMESTAMP       NOT NULL,
-       CONSTRAINT USERIDKEY
-       PRIMARY KEY (USERID))
-      IN DBCTF26.TSDETECT
+-- Create access log table
+   CREATE TABLE CTF2026.ACCLOG
+      (ACCTIME     BIGINT          NOT NULL,
+       INOROUT     CHAR(1)         NOT NULL,
+       USERID      CHAR(8)         NOT NULL,
+       CONSTRAINT ACCTIMEKEY
+       PRIMARY KEY (ACCTIME))
+      IN DBCTF26.TSACCLOG
       PARTITION BY SIZE
       AUDIT NONE
       DATA CAPTURE NONE
@@ -45,10 +41,10 @@
       NOT VOLATILE
       APPEND NO;
 
--- Create detective index for primary key
-   CREATE UNIQUE INDEX CTF2026.IXDETEC1
-     ON CTF2026.DETECTIV
-      (USERID ASC)
+-- Create access log index for primary key
+   CREATE UNIQUE INDEX CTF2026.IXACCLG1
+     ON CTF2026.ACCLOG
+      (ACCTIME ASC)
      USING STOGROUP SGCTF26
      PRIQTY -1 SECQTY -1
      ERASE  NO

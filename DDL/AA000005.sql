@@ -3,8 +3,8 @@
 -- Set SQLID
    SET CURRENT SQLID='CTF2026';
 
--- Create accesslog tablespace
-   CREATE TABLESPACE TSACCLOG
+-- Create progress tablespace
+   CREATE TABLESPACE TSPRGRSS
                        IN DBCTF26
                        USING STOGROUP SGCTF26
                        PRIQTY 40 SECQTY 40
@@ -26,14 +26,14 @@
                        MAXROWS 255
                        INSERT ALGORITHM 0;
 
--- Create access log table
-   CREATE TABLE CTF2026.ACCLOG
-      (ACCTIME     BIGINT          NOT NULL,
-       INOROUT     CHAR(1)         NOT NULL,
-       USERID      CHAR(8)         NOT NULL,
-       CONSTRAINT ACCTIMEKEY
-       PRIMARY KEY (ACCTIME))
-      IN DBCTF26.TSACCLOG
+-- Create progress table
+   CREATE TABLE CTF2026.PROGRESS
+      (USERID      CHAR(8)         NOT NULL,
+       FRAGMENT    CHAR(8)         NOT NULL,
+       POINTS      INT             NOT NULL,
+       CONSTRAINT PROGRESSKEY
+       PRIMARY KEY (USERID,FRAGMENT))
+      IN DBCTF26.TSPRGRSS
       PARTITION BY SIZE
       AUDIT NONE
       DATA CAPTURE NONE
@@ -41,10 +41,11 @@
       NOT VOLATILE
       APPEND NO;
 
--- Create access log index for primary key
-   CREATE UNIQUE INDEX CTF2026.IXACCLG1
-     ON CTF2026.ACCLOG
-      (ACCTIME ASC)
+-- Create progress index for primary key
+   CREATE UNIQUE INDEX CTF2026.IXPRGRS1
+     ON CTF2026.PROGRESS
+      (USERID   ASC,
+       FRAGMENT ASC)
      USING STOGROUP SGCTF26
      PRIQTY -1 SECQTY -1
      ERASE  NO
