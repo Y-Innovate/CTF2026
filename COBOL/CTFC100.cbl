@@ -53,11 +53,11 @@
                10  I-S-Info            PIC S9(9) BINARY.
 
        01  W-LCTFC100.
-           COPY LCTFC100.
+           COPY LCTFC100 REPLACING ==LCTFC100== BY ==W-LCTFC100-GRP==.
        01  W-LCTFM001.
            COPY LCTFM001.
        01  W-LCTFM004.
-           COPY LCTFM004.
+           COPY LCTFM004 REPLACING ==LCTFM004== BY ==W-LCTFM004-GRP==.
        01  W-LINKPAR.
            COPY LINKPAR.
 
@@ -142,8 +142,8 @@
                     FROM 1 BY 1
                    UNTIL FRAGMENT-COUNT OF W-LCTFM004 >
                          FRAGMENT-COUNT OF W-LCTFC100
-                    MOVE FRAGMENT OF W-LCTFM004(
-                            FRAGMENT-COUNT OF W-LCTFM004) TO
+                    MOVE FUNCTION NATIONAL-OF(FRAGMENT OF W-LCTFM004(
+                            FRAGMENT-COUNT OF W-LCTFM004)) TO
                          FRAGMENT OF W-LCTFC100(
                             FRAGMENT-COUNT OF W-LCTFM004)
                     MOVE POINTS OF W-LCTFM004(

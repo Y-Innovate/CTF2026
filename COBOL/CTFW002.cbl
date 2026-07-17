@@ -62,11 +62,14 @@
                10  I-S-Info            PIC S9(9) BINARY.
 
        01  W-SUSPECT-TABLE.
+           05  W-HINT-USED           PIC X.
            05  W-SUSPECT-IDX         PIC S9(4) COMP-5.
            05  W-SUSPECT             PIC X(64) OCCURS 3 TIMES.
 
        01  W-LCTFM001.
            COPY LCTFM001.
+       01  W-LCTFM003.
+           COPY LCTFM003.
        01  W-LINKPAR.
            COPY LINKPAR.
 
@@ -105,6 +108,8 @@
       * R005-CHECK-SUSPECTS: Check list of submitted suspects         *
       *===============================================================*
        R005-CHECK-SUSPECTS SECTION.
+           MOVE '0' TO W-HINT-USED
+
            PERFORM VARYING W-SUSPECT-IDX FROM 1 BY 1
              UNTIL W-SUSPECT-IDX > 3
               MOVE SPACES TO W-SUSPECT(W-SUSPECT-IDX)
@@ -140,6 +145,14 @@
                     ELSE
                        SET SW-LIST-INCORRECT TO TRUE
                     END-IF
+                 ELSE
+                    IF  W-FF-NAMELEN = 9
+                    AND W-FF-NAME(1:9) = 'hint_used'
+                       IF  W-FF-VALUELEN=1
+                       AND W-FF-VALUE(1:1) = '1'
+                          MOVE '1' TO W-HINT-USED
+                       END-IF
+                    END-IF
                  END-IF
 
                  EXEC CICS
@@ -173,6 +186,60 @@
            END-IF
 
            IF SW-LIST-CORRECT
+              EXEC CICS
+                 ASSIGN USERID(W-USERID)
+              END-EXEC
+
+              MOVE FUNCTION NATIONAL-OF(W-USERID) TO
+                   USERID OF W-LCTFM001
+
+              MOVE N'R' TO OPCODE OF W-LCTFM001
+
+              MOVE 'CTFM001' TO W-PGMNAME
+
+              CALL W-PGMNAME USING W-LCTFM001
+
+              IF RETURNCODE OF W-LCTFM001 = N'00'
+                 MOVE W-USERID TO USERID OF W-LCTFM003
+                 MOVE 'INTRO' TO FRAGMENT OF W-LCTFM003
+
+                 MOVE 'S' TO OPCODE OF W-LCTFM003
+
+                 MOVE 'CTFM003' TO W-PGMNAME
+
+                 CALL W-PGMNAME USING W-LCTFM003
+
+                 IF RETURNCODE OF W-LCTFM003 = '00'
+                    IF W-HINT-USED = '1'
+                       MOVE 5 TO POINTS OF W-LCTFM003
+                    ELSE
+                       MOVE 10 TO POINTS OF W-LCTFM003
+                    END-IF
+
+                    MOVE 'I' TO OPCODE OF W-LCTFM003
+
+                    CALL W-PGMNAME USING W-LCTFM003
+                 END-IF
+
+                 IF RETURNCODE OF W-LCTFM003 NOT = '00'
+                    DISPLAY 'CTFW002 CTFM003 '
+                            RETURNCODE OF W-LCTFM003 ' '
+                            REASONCODE OF W-LCTFM003 ' '
+                            INFOMESSAGE OF W-LCTFM003
+
+                    SET SW-LIST-INCORRECT TO TRUE
+                 END-IF
+              ELSE
+                 DISPLAY 'CTFW002 CTFM001 '
+                         RETURNCODE OF W-LCTFM001 ' '
+                         REASONCODE OF W-LCTFM001 ' '
+                         INFOMESSAGE OF W-LCTFM001
+
+                 SET SW-LIST-INCORRECT TO TRUE
+              END-IF
+           END-IF
+
+           IF SW-LIST-CORRECT
               MOVE 'true' TO W-FF-VALUE
               MOVE 4 TO W-FF-VALUELEN
            ELSE
@@ -187,29 +254,6 @@
                            LENGTH(W-FF-VALUELEN)
                            NOHANDLE
            END-EXEC
-
-           IF SW-LIST-CORRECT
-              EXEC CICS
-                 ASSIGN USERID(W-USERID)
-              END-EXEC
-
-              MOVE FUNCTION NATIONAL-OF(W-USERID) TO
-                   USERID OF W-LCTFM001
-
-              MOVE N'R' TO OPCODE OF W-LCTFM001
-
-              MOVE 'CTFM001' TO W-PGMNAME
-
-              CALL W-PGMNAME USING W-LCTFM001
-
-              IF  RETURNCODE OF W-LCTFM001 = N'00'
-              AND INTRODONE OF W-LCTFM001 NOT = N'Y'
-                 MOVE N'U' TO OPCODE OF W-LCTFM001
-                 MOVE N'Y' TO INTRODONE OF W-LCTFM001
-
-                 CALL W-PGMNAME USING W-LCTFM001
-              END-IF
-           END-IF
            .
        R005-CHECK-SUSPECTS-END.
            EXIT.

@@ -39,9 +39,6 @@
        77 ERROR-TEXT-LEN  PIC S9(9) COMP
                                      VALUE +72.
 
-       01 W-LCTFM004.
-           COPY LCTFM004.
-
        LINKAGE SECTION.
        01 P-LCTFM004.
            COPY LCTFM004.
@@ -52,16 +49,16 @@
 
            PERFORM R002-CHECKPARM
 
-           IF RETURNCODE OF W-LCTFM004 = '00'
+           IF RETURNCODE OF P-LCTFM004 = '00'
               PERFORM R110-OPEN-CURSOR
 
-              IF RETURNCODE OF W-LCTFM004 = '00'
+              IF RETURNCODE OF P-LCTFM004 = '00'
                  PERFORM R310-FETCH-CURSOR
 
                  PERFORM WITH TEST BEFORE
-                   UNTIL RETURNCODE OF W-LCTFM004 NOT = '00'
+                   UNTIL RETURNCODE OF P-LCTFM004 NOT = '00'
                       OR SQLCODE NOT = 0
-                      OR FRAGMENT-COUNT OF W-LCTFM004 >= 20
+                      OR FRAGMENT-COUNT OF P-LCTFM004 >= 20
                     PERFORM R310-FETCH-CURSOR
                  END-PERFORM
 
@@ -78,11 +75,11 @@
       * R001-INIT: Program initialisations                            *
       *===============================================================*
        R001-INIT SECTION.
-           MOVE P-LCTFM004 TO W-LCTFM004
+           MOVE P-LCTFM004 TO P-LCTFM004
 
-           MOVE '00' TO RETURNCODE OF W-LCTFM004
-           MOVE '00' TO REASONCODE OF W-LCTFM004
-           MOVE SPACES TO INFOMESSAGE OF W-LCTFM004
+           MOVE '00' TO RETURNCODE OF P-LCTFM004
+           MOVE '00' TO REASONCODE OF P-LCTFM004
+           MOVE SPACES TO INFOMESSAGE OF P-LCTFM004
            .
        R001-INIT-END.
            EXIT.
@@ -91,10 +88,10 @@
       * R002-CHECKPARM: Check parameters                              *
       *===============================================================*
        R002-CHECKPARM SECTION.
-           IF USERID OF W-LCTFM004 = SPACES
-              MOVE '08' TO RETURNCODE OF W-LCTFM004
-              MOVE '01' TO REASONCODE OF W-LCTFM004
-              MOVE 'USERID is required' TO INFOMESSAGE OF W-LCTFM004
+           IF USERID OF P-LCTFM004 = SPACES
+              MOVE '08' TO RETURNCODE OF P-LCTFM004
+              MOVE '01' TO REASONCODE OF P-LCTFM004
+              MOVE 'USERID is required' TO INFOMESSAGE OF P-LCTFM004
            END-IF
            .
        R002-CHECKPARM-END.
@@ -104,7 +101,7 @@
       * R009-FINISH: Program finalisations                            *
       *===============================================================*
        R009-FINISH SECTION.
-           MOVE W-LCTFM004 TO P-LCTFM004
+           MOVE P-LCTFM004 TO P-LCTFM004
            .
        R009-FINISH-END.
            EXIT.
@@ -113,13 +110,11 @@
       * R110-OPEN-CURSOR: Open cursor for SELECT of PROGRESS table    *
       *===============================================================*
        R110-OPEN-CURSOR SECTION.
-           MOVE USERID OF W-LCTFM004 TO USERID OF DCLPROGRESS
+           MOVE USERID OF P-LCTFM004 TO USERID OF DCLPROGRESS
 
            EXEC SQL
               DECLARE C1 CURSOR FOR
                  SELECT FRAGMENT, POINTS
-                   INTO :DCLPROGRESS.FRAGMENT,
-                        :DCLPROGRESS.POINTS
                    FROM PROGRESS
                   WHERE USERID = :DCLPROGRESS.USERID
                     FOR FETCH ONLY
@@ -133,12 +128,12 @@
            IF SQLCODE NOT = 0
               MOVE SQLCODE TO W-SQLCODE
 
-              MOVE '08' TO RETURNCODE OF W-LCTFM004
-              MOVE '02' TO REASONCODE OF W-LCTFM004
+              MOVE '08' TO RETURNCODE OF P-LCTFM004
+              MOVE '02' TO REASONCODE OF P-LCTFM004
               STRING 'SELECT gave SQLCODE='
                      W-SQLCODE
                  DELIMITED BY SIZE
-                 INTO INFOMESSAGE OF W-LCTFM004
+                 INTO INFOMESSAGE OF P-LCTFM004
               PERFORM R900-DSNTIAR
            END-IF
            .
@@ -156,12 +151,12 @@
            IF SQLCODE NOT = 0
               MOVE SQLCODE TO W-SQLCODE
 
-              MOVE '08' TO RETURNCODE OF W-LCTFM004
-              MOVE '02' TO REASONCODE OF W-LCTFM004
+              MOVE '08' TO RETURNCODE OF P-LCTFM004
+              MOVE '02' TO REASONCODE OF P-LCTFM004
               STRING 'SELECT gave SQLCODE='
                      W-SQLCODE
                  DELIMITED BY SIZE
-                 INTO INFOMESSAGE OF W-LCTFM004
+                 INTO INFOMESSAGE OF P-LCTFM004
               PERFORM R900-DSNTIAR
            END-IF
            .
@@ -180,28 +175,28 @@
 
            EVALUATE SQLCODE
            WHEN 0
-              ADD 1 TO FRAGMENT-COUNT OF W-LCTFM004
+              ADD 1 TO FRAGMENT-COUNT OF P-LCTFM004
 
               MOVE FRAGMENT OF DCLPROGRESS TO
-                   FRAGMENT OF W-LCTFM004(FRAGMENT-COUNT OF W-LCTFM004)
+                   FRAGMENT OF P-LCTFM004(FRAGMENT-COUNT OF P-LCTFM004)
               MOVE POINTS OF DCLPROGRESS TO
-                   POINTS OF W-LCTFM004(FRAGMENT-COUNT OF W-LCTFM004)
+                   POINTS OF P-LCTFM004(FRAGMENT-COUNT OF P-LCTFM004)
            WHEN 100
-              IF FRAGMENT-COUNT OF W-LCTFM004 = 0
-                 MOVE '04' TO RETURNCODE OF W-LCTFM004
-                 MOVE '01' TO REASONCODE OF W-LCTFM004
+              IF FRAGMENT-COUNT OF P-LCTFM004 = 0
+                 MOVE '04' TO RETURNCODE OF P-LCTFM004
+                 MOVE '01' TO REASONCODE OF P-LCTFM004
                  MOVE 'PROGRESS entry not found' TO
-                      INFOMESSAGE OF W-LCTFM004
+                      INFOMESSAGE OF P-LCTFM004
               END-IF
            WHEN OTHER
               MOVE SQLCODE TO W-SQLCODE
 
-              MOVE '08' TO RETURNCODE OF W-LCTFM004
-              MOVE '02' TO REASONCODE OF W-LCTFM004
+              MOVE '08' TO RETURNCODE OF P-LCTFM004
+              MOVE '02' TO REASONCODE OF P-LCTFM004
               STRING 'SELECT gave SQLCODE='
                      W-SQLCODE
                  DELIMITED BY SIZE
-                 INTO INFOMESSAGE OF W-LCTFM004
+                 INTO INFOMESSAGE OF P-LCTFM004
               PERFORM R900-DSNTIAR
             END-EVALUATE
            .
