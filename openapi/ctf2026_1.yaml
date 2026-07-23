@@ -1,0 +1,163 @@
+openapi: 3.0.0
+info:
+  version: "1"
+  title: CTF2026 API
+  description: API for Capture the Flag 2026
+  x-apiname: CTF2026
+servers:
+  - url: https://mainframeyin:8092/CTF2026/API/v1
+paths:
+  /loginInfo:
+    summary: Get login information for current user
+    get:
+      summary: Get login information for current user
+      responses:
+        '200':
+          description: Successful retrieval of login information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/loginInfo"
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+        default:
+          description: Unexpected error
+      x-LWWProcessingSteps:
+        $ref: "ctf2026_2.yaml/paths/~1loginInfo/get/x-LWWProcessingSteps"
+  /detectives:
+    summary: Manage detectives
+    post:
+      summary: Add new detective
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DetectivesCRUDLong"
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+        default:
+          description: Unexpected error
+      x-LWWProcessingSteps:
+        $ref: "ctf2026_2.yaml/paths/~1detectives/post/x-LWWProcessingSteps"
+  /sqlquery:
+    summary: Execute an SQL query
+    post:
+      summary: Execute an SQL query
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SQLQueryResponse"
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+        default:
+          description: Unexpected error
+      x-LWWProcessingSteps:
+        $ref: "ctf2026_2.yaml/paths/~1sqlquery/post/x-LWWProcessingSteps"
+  /token:
+    summary: Retrieve access token
+    post:
+      summary: Retrieve access token
+      operationId: newAccessToken
+      tags:
+        - insert
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenResponse"
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+        default:
+          description: Unexpected error
+      x-LWWProcessingSteps:
+        $ref: "ctf2026_2.yaml/paths/~1token/post/x-LWWProcessingSteps"
+components:
+  schemas:
+    loginInfo:
+      type: object
+      properties:
+        userid:
+          type: string
+        nickname:
+          type: string
+        fragmentsResolved:
+          type: array
+          items:
+            type: object
+            properties:
+              fragment:
+                type: string
+              points:
+                type: number
+    DetectivesCRUDLong:
+      type: object
+      properties:
+        returnCode:
+          type: string
+        reasonCode:
+          type: string
+        infoMessage:
+          type: string
+        userid:
+          type: string
+        nickname:
+          type: string
+        email:
+          type: string
+        createdBy:
+          type: string
+        createdDate:
+          type: string
+        updatedBy:
+          type: string
+        updatedDate:
+          type: string
+    DetectivesCRUDShort:
+      type: object
+      properties:
+        returnCode:
+          type: string
+        reasonCode:
+          type: string
+        infoMessage:
+          type: string
+    SQLQueryResponse:
+      type: object
+      properties:
+        sqlcode:
+          type: number
+        sqlResults:
+          type: array
+          items:
+            type: object
+            properties:
+              resultLine:
+                type: string
+    TokenResponse:
+      type: object
+      properties:
+        token:
+          type: string
