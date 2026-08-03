@@ -15,7 +15,8 @@ from MyRequests import MyRequests
 Globals.myHost = "https://yinhdisv:8081"
 #Globals.myHost = "https://mainframeyin:8092"
 Globals.myBasepath = ""
-Globals.myCreds = ('YBTKS','')
+Globals.myCreds = ('','')
+#Globals.myCreds = ('','')
 Globals.s = requests.sessions.Session()
 
 if Globals.myCreds[0] == '':
@@ -71,8 +72,8 @@ def createDir(someDir, id, parentId, custom):
     data['folderName'] = x.group(1)
     data['path'] = f"/CTF2026/{someDir[n:]}"
     data['generateId'] = "Y"
-    data['defaultTran'] = ""
-    data['defaultWebpageId'] = ""
+    #data['defaultTran'] = ""
+    #data['defaultWebpageId'] = ""
     data['custom'] = custom
 
     if Globals.myDebug > 0:
@@ -105,8 +106,8 @@ def updateDir(someDir, id, parentId, custom):
     data['folderName'] = x.group(1)
     data['path'] = f"/CTF2026/{someDir[n:]}"
     data['generateId'] = "N"
-    data['defaultTran'] = ""
-    data['defaultWebpageId'] = ""
+    #data['defaultTran'] = ""
+    #data['defaultWebpageId'] = ""
     data['custom'] = custom
 
     if Globals.myDebug > 0:
@@ -191,16 +192,16 @@ def uploadFile(f, id, parentId, custom, found):
     newFile['folderId'] = parentId
     newFile['fileName'] = x.group(2)
     newFile['mediaType'] = mediaType
-    newFile['transaction'] = ""
+    #newFile['transaction'] = ""
     newFile['preventCache'] = "N"
     newFile['storeBinary'] = "Y"
-    newFile['scriptLoadModule'] = ""
-    newFile['preexecLoadModule'] = ""
-    newFile['postexecLoadModule'] = ""
-    newFile['whereStoreImage'] = ""
-    newFile['templateName'] = ""
-    newFile['DDName'] = ""
-    newFile['member'] = ""
+    #newFile['scriptLoadModule'] = ""
+    #newFile['preexecLoadModule'] = ""
+    #newFile['postexecLoadModule'] = ""
+    #newFile['whereStoreImage'] = ""
+    #newFile['templateName'] = ""
+    #newFile['DDName'] = ""
+    #newFile['member'] = ""
     newFile['custom'] = _custom
 
     if (os.path.isfile(f"{x.group(1)}.{x.group(2)}")):
@@ -229,7 +230,7 @@ def doDir(someDir, parentId, folderHash):
 
     if respget.status_code != 200:
         raise Exception(f"{respget.status_code} {respget.text}")
-    
+
     folderContents = json.loads(respget.text)
     
     #print(folderContents)
@@ -334,9 +335,9 @@ def doDir(someDir, parentId, folderHash):
 
                 doDir(f"{someDir}/{d['folderName']}", id, d['hash'])
             else:
-                # print(d['dir'])
+                print(d['dir'])
 
-                # if d['dir'] in neededDirs:
+                #if d['dir'] in neededDirs:
                 doDir(f"{someDir}/{d['folderName']}", d['folderId'], d['hash'])
 
                 if d['hash'] != found:

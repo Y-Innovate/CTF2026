@@ -1,9 +1,8 @@
 openapi: 3.0.0
 info:
-  version: "1"
+  version: 1.0.1
   title: CTF2026 API
   description: API for Capture the Flag 2026
-  x-apiname: CTF2026
 servers:
   - url: https://mainframeyin:8092/CTF2026/API/v1
 paths:
