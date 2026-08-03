@@ -6,10 +6,10 @@ from getpass import getpass
 from Globals import Globals
 from MyRequests import MyRequests
 
-Globals.myHost = "https://yinhdisv:8081"
-#Globals.myHost = "https://mainframeyin:8092"
+#Globals.myHost = "https://yinhdisv:8081"
+Globals.myHost = "https://mainframeyin:8092"
 Globals.myBasepath = ""
-Globals.myCreds = ('YBTKS','')
+Globals.myCreds = ('','')
 Globals.pathPrefix = "/CTF2026/API/v1"
 Globals.s = requests.sessions.Session()
 
@@ -26,15 +26,23 @@ print("Getting bearer token")
 MyRequests.getBearerToken(f"{Globals.pathPrefix}/token")
 
 def doStuff():
-    data = {}
-    data['sqlquery'] = "select * from CTF2026.ACCLOG"
+    respget = MyRequests.get(f"{Globals.pathPrefix}/loginInfo")
 
-    resppost = MyRequests.post(f"{Globals.pathPrefix}/sqlquery?lww_debug=3", data)
-
-    if (resppost.status_code == 200):
-        print(f"{resppost.status_code} {resppost.text}")
+    if (respget.status_code == 200):
+        print(f"{respget.status_code} {respget.text}")
     else:
-        raise Exception(f'status code {str(resppost.status_code)} {resppost.text}')
+        raise Exception(f'status code {str(respget.status_code)} {respget.text}')
+
+    # data = {}
+    # #data['sqlquery'] = "SELECT ACCTIME, TIMESTAMP('1970-01-01') + ACCTIME SECONDS + CURRENT TIMEZONE, INOROUT, USERID FROM CTF2026.ACCLOG"
+    # data['sqlquery'] = "SELECT"
+
+    # resppost = MyRequests.post(f"{Globals.pathPrefix}/sqlquery", data)
+
+    # if (resppost.status_code == 200):
+    #     print(f"{resppost.status_code} {resppost.text}")
+    # else:
+    #     raise Exception(f'status code {str(resppost.status_code)} {resppost.text}')
 
 #for i in range(0, 100):
 doStuff()

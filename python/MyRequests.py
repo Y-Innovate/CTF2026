@@ -20,6 +20,9 @@ class MyRequests:
             if Globals.myDebug > 0:
                 print(resppost.text)
 
+            if Globals.myDebug > 0:
+                print(f"{resppost.status_code} {resppost.text}")
+
             gettoken = json.loads(resppost.text)
 
             if (gettoken['token']):
