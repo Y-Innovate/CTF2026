@@ -16,6 +16,7 @@
        01  WORK.
            05  C-CHNL-NAME-LWW       PIC X(16) VALUE 'LWW-LINK-CHL-00'.
            05  C-CONT-NAME-LWW-00    PIC X(16) VALUE 'LWW-LINK-PAR-00'.
+           05  C-CONT-NAME-LWW-03    PIC X(16) VALUE 'LWW-LINK-PAR-03'.
            05  W-CHNL-NAME           PIC X(16).
            05  W-CONT-NAME           PIC X(16).
            05  W-CONT-POINTER        POINTER.
@@ -177,9 +178,28 @@
 
               MOVE N'R' TO OPCODE OF W-LCTFM001
 
-              MOVE 'CTFM001' TO W-PGMNAME
+              MOVE C-CHNL-NAME-LWW      TO W-CHNL-NAME 
+              MOVE C-CONT-NAME-LWW-03   TO W-CONT-NAME
+              MOVE LENGTH OF W-LCTFM001 TO W-CONT-LENGTH
+              SET W-CONT-POINTER TO ADDRESS OF W-LCTFM001
 
-              CALL W-PGMNAME USING W-LCTFM001
+              PERFORM R920-PUT-CONTAINER
+
+              EXEC CICS
+                 LINK PROGRAM('CTFC001') CHANNEL(C-CHNL-NAME-LWW)
+              END-EXEC
+
+              MOVE C-CHNL-NAME-LWW    TO W-CHNL-NAME
+              MOVE C-CONT-NAME-LWW-03 TO W-CONT-NAME
+
+              PERFORM R910-GET-CONTAINER
+
+              IF SW-CONT-FOUND
+                 SET ADDRESS OF P-CHAR TO W-CONT-POINTER
+                 MOVE P-CHAR(1:W-CONT-LENGTH) TO W-LCTFM001
+              ELSE
+                 MOVE N'12' TO RETURNCODE OF W-LCTFM001
+              END-IF
 
               IF RETURNCODE OF W-LCTFM001 = N'00'
                  MOVE W-USERID TO USERID OF W-LCTFM003
@@ -187,9 +207,28 @@
 
                  MOVE 'R' TO OPCODE OF W-LCTFM003
 
-                 MOVE 'CTFM003' TO W-PGMNAME
+                 MOVE C-CHNL-NAME-LWW      TO W-CHNL-NAME
+                 MOVE C-CONT-NAME-LWW-03   TO W-CONT-NAME
+                 MOVE LENGTH OF W-LCTFM001 TO W-CONT-LENGTH
+                 SET W-CONT-POINTER TO ADDRESS OF W-LCTFM003
 
-                 CALL W-PGMNAME USING W-LCTFM003
+                 PERFORM R920-PUT-CONTAINER
+
+                 EXEC CICS
+                    LINK PROGRAM('CTFC003') CHANNEL(C-CHNL-NAME-LWW)
+                 END-EXEC
+
+                 MOVE C-CHNL-NAME-LWW    TO W-CHNL-NAME
+                 MOVE C-CONT-NAME-LWW-03 TO W-CONT-NAME
+
+                 PERFORM R910-GET-CONTAINER
+
+                 IF SW-CONT-FOUND
+                    SET ADDRESS OF P-CHAR TO W-CONT-POINTER
+                    MOVE P-CHAR(1:W-CONT-LENGTH) TO W-LCTFM003
+                 ELSE
+                       MOVE '12' TO RETURNCODE OF W-LCTFM003
+                 END-IF
 
                  IF RETURNCODE OF W-LCTFM003 = '04'
                  OR RETURNCODE OF W-LCTFM003 = '04'
@@ -201,7 +240,28 @@
                        MOVE 10 TO POINTS OF W-LCTFM003
                     END-IF
 
-                    CALL W-PGMNAME USING W-LCTFM003
+                    MOVE C-CHNL-NAME-LWW      TO W-CHNL-NAME
+                    MOVE C-CONT-NAME-LWW-03   TO W-CONT-NAME
+                    MOVE LENGTH OF W-LCTFM001 TO W-CONT-LENGTH
+                    SET W-CONT-POINTER TO ADDRESS OF W-LCTFM003
+
+                    PERFORM R920-PUT-CONTAINER
+
+                    EXEC CICS
+                       LINK PROGRAM('CTFC003') CHANNEL(C-CHNL-NAME-LWW)
+                    END-EXEC
+
+                    MOVE C-CHNL-NAME-LWW    TO W-CHNL-NAME
+                    MOVE C-CONT-NAME-LWW-03 TO W-CONT-NAME
+
+                    PERFORM R910-GET-CONTAINER
+
+                    IF SW-CONT-FOUND
+                       SET ADDRESS OF P-CHAR TO W-CONT-POINTER
+                       MOVE P-CHAR(1:W-CONT-LENGTH) TO W-LCTFM003
+                    ELSE
+                       MOVE '12' TO RETURNCODE OF W-LCTFM003
+                    END-IF
 
                     IF RETURNCODE OF W-LCTFM003 NOT = '00'
                        DISPLAY 'CTFW003 CTFM003 '
@@ -283,5 +343,35 @@
            END-IF
            .
        R910-GET-CONTAINER-END.
+           EXIT.
+
+       R920-PUT-CONTAINER SECTION.
+           SET ADDRESS OF P-CHAR TO W-CONT-POINTER
+
+           EXEC CICS
+              PUT CONTAINER(W-CONT-NAME)
+                  CHANNEL(W-CHNL-NAME)
+                  FROM(P-CHAR)
+                  FLENGTH(W-CONT-LENGTH)
+                  NOHANDLE
+           END-EXEC
+
+           IF EIBRESP = DFHRESP(NORMAL)
+              CONTINUE
+           ELSE
+              MOVE '08' TO W-RETURNCODE
+
+              MOVE EIBRESP  TO W-EIBRESP
+              MOVE EIBRESP2 TO W-EIBRESP2
+              MOVE 1 TO Vstring-length
+              STRING 'PUT CONTAINER ERROR ' W-EIBRESP ' ' W-EIBRESP2
+                     DELIMITED BY SIZE
+                INTO Vstring-text
+                WITH POINTER Vstring-length
+              SUBTRACT 1 FROM Vstring-length
+              CALL 'CEEMOUT' USING MSGSTR, MSGDEST, FC
+           END-IF
+           .
+       R920-PUT-CONTAINER-END.
            EXIT.
        END PROGRAM CTFW003.
