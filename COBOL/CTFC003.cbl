@@ -1,9 +1,7 @@
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. CTFW001.
+       PROGRAM-ID. CTFC003.
       *===============================================================*
-      * This program is a WEB program for the CTF2026 app. It checks  *
-      * if the current users is registered in the DETECTIV table. If  *
-      * not then the client is redirected to give_nickname.html.      *
+      * This program is a REST program for the CTF2026 app.           *
       * ------------------------------------------------------------- *
       * Updates:                                                      *
       *                                                               *
@@ -17,13 +15,13 @@
        01  WORK.
            05  C-CHNL-NAME-LWW       PIC X(16) VALUE 'LWW-LINK-CHL-00'.
            05  C-CONT-NAME-LWW-00    PIC X(16) VALUE 'LWW-LINK-PAR-00'.
+           05  C-CONT-NAME-LWW-03    PIC X(16) VALUE 'LWW-LINK-PAR-03'.
            05  W-CHNL-NAME           PIC X(16).
            05  W-CONT-NAME           PIC X(16).
            05  W-CONT-POINTER        POINTER.
            05  W-CONT-LENGTH         PIC S9(9) USAGE COMP-5.
            05  W-RETURNCODE          PIC X(2)  VALUE '00'.
            05  W-PGMNAME             PIC X(8)  VALUE SPACES.
-           05  W-USERID              PIC X(8).
            05  W-EIBRESP             PIC 9(8).
            05  W-EIBRESP2            PIC 9(8).
 
@@ -53,8 +51,8 @@
                    15  Facility-ID     PIC XXX.
                10  I-S-Info            PIC S9(9) BINARY.
        
-       01  W-LCTFM001.
-           COPY LCTFM001.
+       01  W-LCTFM003.
+           COPY LCTFM003.
        01  W-LINKPAR.
            COPY LINKPAR.
 
@@ -65,7 +63,7 @@
        MAIN SECTION.
            PERFORM R001-INIT
 
-           PERFORM R005-CHECK-NICNAME
+           PERFORM R005-CALL-CTFM003
 
            PERFORM R009-FINISH
            .
@@ -74,6 +72,16 @@
       * R001-INIT: Program initialisations                            *
       *===============================================================*
        R001-INIT SECTION.
+           MOVE C-CHNL-NAME-LWW    TO W-CHNL-NAME 
+           MOVE C-CONT-NAME-LWW-03 TO W-CONT-NAME
+
+           PERFORM R910-GET-CONTAINER
+
+           IF SW-CONT-FOUND
+              SET ADDRESS OF P-CHAR TO W-CONT-POINTER
+              MOVE P-CHAR(1:W-CONT-LENGTH) TO W-LCTFM003
+           END-IF
+
            MOVE C-CHNL-NAME-LWW    TO W-CHNL-NAME 
            MOVE C-CONT-NAME-LWW-00 TO W-CONT-NAME
 
@@ -88,33 +96,27 @@
            EXIT.
 
       *===============================================================*
-      * R005-CHECK-NICNAME: Check if user is present in DETECTIV      *
+      * R005-CALL-CTFM003: Call CTFM003                               *
       *===============================================================*
-       R005-CHECK-NICNAME SECTION.
-           EXEC CICS
-              ASSIGN USERID(W-USERID)
-           END-EXEC
+       R005-CALL-CTFM003 SECTION.
+           MOVE 'CTFM003' TO W-PGMNAME
 
-           MOVE N'R' TO OPCODE OF W-LCTFM001
-           MOVE FUNCTION NATIONAL-OF(W-USERID) TO USERID OF W-LCTFM001
-
-           MOVE 'CTFM001' TO W-PGMNAME
-
-           CALL W-PGMNAME USING W-LCTFM001
-
-           IF RETURNCODE OF W-LCTFM001 NOT = N'00'
-              IF RETURNCODE OF W-LCTFM001 = N'04'
-                 MOVE 'FL000009' TO LREDURI OF W-LINKPAR
-              END-IF
-           END-IF
+           CALL W-PGMNAME USING W-LCTFM003
            .
-       R005-CHECK-NICNAME-END.
+       R005-CALL-CTFM003-END.
            EXIT.
 
       *===============================================================*
       * R009-FINISH: Program finalisations                            *
       *===============================================================*
        R009-FINISH SECTION.
+           MOVE C-CHNL-NAME-LWW      TO W-CHNL-NAME 
+           MOVE C-CONT-NAME-LWW-03   TO W-CONT-NAME
+           MOVE LENGTH OF W-LCTFM003 TO W-CONT-LENGTH
+           SET W-CONT-POINTER TO ADDRESS OF W-LCTFM003
+
+           PERFORM R920-PUT-CONTAINER
+
            MOVE C-CHNL-NAME-LWW     TO W-CHNL-NAME 
            MOVE C-CONT-NAME-LWW-00  TO W-CONT-NAME
            MOVE LENGTH OF W-LINKPAR TO W-CONT-LENGTH
@@ -187,6 +189,6 @@
               CALL 'CEEMOUT' USING MSGSTR, MSGDEST, FC
            END-IF
            .
-       R920-PUT-CONTAINER-END.
+       R930-PUT-CONTAINER-END.
            EXIT.
-       END PROGRAM CTFW001.
+       END PROGRAM CTFC003.
