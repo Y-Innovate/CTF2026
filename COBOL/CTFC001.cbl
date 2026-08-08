@@ -2,6 +2,7 @@
        PROGRAM-ID. CTFC001.
       *===============================================================*
       * This program is a REST program for the CTF2026 app.           *
+      * CRUD on DETECTIV table.                                       *
       * ------------------------------------------------------------- *
       * Updates:                                                      *
       *                                                               *

@@ -2,6 +2,7 @@
        PROGRAM-ID. CTFC003.
       *===============================================================*
       * This program is a REST program for the CTF2026 app.           *
+      * Run CTFM003 to CRUD PROGRESS table.                           *
       * ------------------------------------------------------------- *
       * Updates:                                                      *
       *                                                               *
