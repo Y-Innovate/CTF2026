@@ -1,4 +1,4 @@
-openapi: 3.0.0
+openapi: 3.2.0
 info:
   version: 1.0.1
   title: CTF2026 API
@@ -10,6 +10,8 @@ paths:
     summary: Get login information for current user
     get:
       summary: Get login information for current user
+      tags:
+        - retrieve
       responses:
         '200':
           description: Successful retrieval of login information
@@ -31,6 +33,13 @@ paths:
     summary: Manage detectives
     post:
       summary: Add new detective
+      tags:
+        - create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DetectivesRequestPost"
       responses:
         '201':
           description: Created
@@ -41,8 +50,10 @@ paths:
         '401':
           description: Unauthorized
         '404':
+          $ref: "#/components/schemas/DetectivesCRUDShort"
           description: Not found
         '500':
+          $ref: "#/components/schemas/DetectivesCRUDShort"
           description: Internal server error
         default:
           description: Unexpected error
@@ -52,6 +63,13 @@ paths:
     summary: Execute an SQL query
     post:
       summary: Execute an SQL query
+      tags:
+        - execute
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SQLQueryRequestPost"
       responses:
         '200':
           description: OK
@@ -75,7 +93,12 @@ paths:
       summary: Retrieve access token
       operationId: newAccessToken
       tags:
-        - insert
+        - create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TokenRequestPost"
       responses:
         '201':
           description: Created
@@ -99,50 +122,67 @@ components:
       type: object
       properties:
         userid:
-          type: string
+          $ref: "#/components/schemas/userid"
         nickname:
-          type: string
+          $ref: "#/components/schemas/nickname"
         fragmentsResolved:
           type: array
           items:
             type: object
             properties:
               fragment:
-                type: string
+                $ref: "#/components/schemas/fragment"
               points:
-                type: number
+                $ref: "#/components/schemas/points"
+    DetectivesRequestPost:
+      type: object
+      properties:
+        userid:
+          $ref: "#/components/schemas/userid"
+        nickname:
+          $ref: "#/components/schemas/nickname"
+        email:
+          $ref: "#/components/schemas/email"
     DetectivesCRUDLong:
       type: object
       properties:
         returnCode:
-          type: string
+          $ref: "#/components/schemas/returnCode"
         reasonCode:
-          type: string
+          $ref: "#/components/schemas/reasonCode"
         infoMessage:
-          type: string
+          $ref: "#/components/schemas/infoMessage"
         userid:
-          type: string
+          $ref: "#/components/schemas/userid"
         nickname:
-          type: string
+          $ref: "#/components/schemas/nickname"
         email:
-          type: string
+          $ref: "#/components/schemas/email"
         createdBy:
-          type: string
+          $ref: "#/components/schemas/userid"
         createdDate:
-          type: string
+          $ref: "#/components/schemas/date"
         updatedBy:
-          type: string
+          $ref: "#/components/schemas/userid"
         updatedDate:
-          type: string
+          $ref: "#/components/schemas/date"
     DetectivesCRUDShort:
       type: object
       properties:
         returnCode:
-          type: string
+          $ref: "#/components/schemas/returnCode"
         reasonCode:
-          type: string
+          $ref: "#/components/schemas/reasonCode"
         infoMessage:
+          $ref: "#/components/schemas/infoMessage"
+    SQLQueryRequestPost:
+      type: object
+      properties:
+        sqlquery:
           type: string
+          minLength: 1
+          maxLength: 256
+          example: SELECT ACCTIME, INOROUT, USERID FROM CTF2026.ACCLOG ORDER BY ACCTIME DESC
     SQLQueryResponse:
       type: object
       properties:
@@ -155,8 +195,70 @@ components:
             properties:
               resultLine:
                 type: string
+                minLength: 0
+                maxLength: 80
+    TokenRequestPost:
+      type: object
+      properties:
+        username:
+          $ref: "#/components/schemas/userid"
+        password:
+          $ref: "#/components/schemas/password"
     TokenResponse:
       type: object
       properties:
         token:
-          type: string
+          $ref: "#/components/schemas/token"
+    #
+    # Dictionary part
+    userid:
+      type: string
+      minLength: 1
+      maxLength: 8
+      example: CTF001
+    password:
+      type: string
+      minLength: 1
+      maxLength: 100
+    token:
+      type: string
+      minLength: 1
+      maxLength: 1024
+    nickname:
+      type: string
+      minLength: 1
+      maxLength: 128
+      example: Ief Br14
+    email:
+      type: string
+      minLength: 1
+      maxLength: 128
+      example: someone@somecompany.com
+    fragment:
+      type: string
+      minLength: 1
+      maxLength: 8
+      example: INTRO
+    points:
+      type: integer
+      example: 10
+    returnCode:
+      type: string
+      minLength: 2
+      maxLength: 2
+      example: "00"
+    reasonCode:
+      type: string
+      minLength: 2
+      maxLength: 2
+      example: "04"
+    infoMessage:
+      type: string
+      minLength: 0
+      maxLength: 72
+      example: "entry not found"
+    date:
+      type: string
+      minLength: 26
+      maxLength: 26
+      example: 2026-01-01 12:00:00.000000

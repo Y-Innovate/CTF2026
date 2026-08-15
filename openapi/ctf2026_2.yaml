@@ -11,8 +11,12 @@ paths:
         - Link:
             program: CTFC100
             passDataWith: container
-            ioArea:
-              $ref: "ctf2026_2.yaml/paths/~1loginInfo/get/x-LWWProcessingSteps/0/AllocateIOArea"
+            in:
+              - containerName: LWW-LINK-PAR-03
+                $ref: "ctf2026_2.yaml/paths/~1loginInfo/get/x-LWWProcessingSteps/0/AllocateIOArea"
+            out:
+              - containerName: LWW-LINK-PAR-03
+                $ref: "ctf2026_2.yaml/paths/~1loginInfo/get/x-LWWProcessingSteps/0/AllocateIOArea"
         - CreateObject:
             name: CTFC100_RESP
             properties:
@@ -86,8 +90,12 @@ paths:
         - Link:
             program: CTFC001
             passDataWith: container
-            ioArea:
-              $ref: "ctf2026_2.yaml/paths/~1detectives/post/x-LWWProcessingSteps/0/AllocateIOArea"
+            in:
+              - containerName: LWW-LINK-PAR-03
+                $ref: "ctf2026_2.yaml/paths/~1detectives/post/x-LWWProcessingSteps/0/AllocateIOArea"
+            out:
+              - containerName: LWW-LINK-PAR-03
+                $ref: "ctf2026_2.yaml/paths/~1detectives/post/x-LWWProcessingSteps/0/AllocateIOArea"
         - Condition:
             name: LCTFC001_POST_OK
             source:
@@ -187,8 +195,12 @@ paths:
         - Link:
             program: CTFC002
             passDataWith: container
-            ioArea:
-              $ref: "ctf2026_2.yaml/paths/~1sqlquery/post/x-LWWProcessingSteps/0/AllocateIOArea"
+            in:
+              - containerName: LWW-LINK-PAR-03
+                $ref: "ctf2026_2.yaml/paths/~1sqlquery/post/x-LWWProcessingSteps/0/AllocateIOArea"
+            out:
+              - containerName: LWW-LINK-PAR-03
+                $ref: "ctf2026_2.yaml/paths/~1sqlquery/post/x-LWWProcessingSteps/0/AllocateIOArea"
         - CreateObject:
             name: CTFM002_POST_RET_OK
             properties:
@@ -238,8 +250,12 @@ paths:
         - Link:
             program: LWWADPLI
             passDataWith: container
-            ioArea:
-              $ref: "ctf2026_2.yaml/paths/~1token/post/x-LWWProcessingSteps/0/AllocateIOArea"
+            in:
+              - containerName: LWW-LINK-PAR-03
+                $ref: "ctf2026_2.yaml/paths/~1token/post/x-LWWProcessingSteps/0/AllocateIOArea"
+            out:
+              - containerName: LWW-LINK-PAR-03
+                $ref: "ctf2026_2.yaml/paths/~1token/post/x-LWWProcessingSteps/0/AllocateIOArea"
         - CreateObject:
             name: LWWADPLI_RET
             properties:
