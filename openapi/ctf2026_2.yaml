@@ -7,25 +7,25 @@ paths:
             initWith: 0x00
             size: 676
             fields:
-              $ref: "ctf2026_2.yaml/components/x-ioareas/LCTFC100/fields"
+              $ref: "#/components/x-ioareas/LCTFC100/fields"
         - Link:
             program: CTFC100
             passDataWith: container
             in:
               - containerName: LWW-LINK-PAR-03
-                $ref: "ctf2026_2.yaml/paths/~1loginInfo/get/x-LWWProcessingSteps/0/AllocateIOArea"
+                $ref: "#/paths/~1loginInfo/get/x-LWWProcessingSteps/0/AllocateIOArea"
             out:
               - containerName: LWW-LINK-PAR-03
-                $ref: "ctf2026_2.yaml/paths/~1loginInfo/get/x-LWWProcessingSteps/0/AllocateIOArea"
+                $ref: "#/paths/~1loginInfo/get/x-LWWProcessingSteps/0/AllocateIOArea"
         - CreateObject:
             name: CTFC100_RESP
             properties:
               $ref: "ctf2026_1.yaml/components/schemas/loginInfo/properties"
         - Mapping:
             from:
-              $ref: "ctf2026_2.yaml/paths/~1loginInfo/get/x-LWWProcessingSteps/0/AllocateIOArea/fields"
+              $ref: "#/paths/~1loginInfo/get/x-LWWProcessingSteps/0/AllocateIOArea/fields"
             to:
-              $ref: "ctf2026_2.yaml/paths/~1loginInfo/get/x-LWWProcessingSteps/2/CreateObject/properties"
+              $ref: "#/paths/~1loginInfo/get/x-LWWProcessingSteps/2/CreateObject/properties"
             combinations:
               - type: singleFields
                 fromName: USERID
@@ -45,7 +45,7 @@ paths:
                     toName: points
         - JSONWriter:
             responseObject:
-              $ref: "ctf2026_2.yaml/paths/~1loginInfo/get/x-LWWProcessingSteps/2/CreateObject"
+              $ref: "#/paths/~1loginInfo/get/x-LWWProcessingSteps/2/CreateObject"
   /detectives:
     post:
       x-LWWProcessingSteps:
@@ -54,14 +54,14 @@ paths:
             initWith: 0x00
             size: 822
             fields:
-              $ref: "ctf2026_2.yaml/components/x-ioareas/LCTFM001/fields"
+              $ref: "#/components/x-ioareas/LCTFM001/fields"
         - ParseRequestJSON:
             name: LCTFC001_POST_JSNR
         - Mapping:
             from:
-              $ref: "ctf2026_2.yaml/paths/~1detectives/post/x-LWWProcessingSteps/1/ParseRequestJSON"
+              $ref: "#/paths/~1detectives/post/x-LWWProcessingSteps/1/ParseRequestJSON"
             to:
-              $ref: "ctf2026_2.yaml/paths/~1detectives/post/x-LWWProcessingSteps/0/AllocateIOArea/fields"
+              $ref: "#/paths/~1detectives/post/x-LWWProcessingSteps/0/AllocateIOArea/fields"
             combinations:
               - type: singleFields
                 fromName: userid
@@ -92,14 +92,14 @@ paths:
             passDataWith: container
             in:
               - containerName: LWW-LINK-PAR-03
-                $ref: "ctf2026_2.yaml/paths/~1detectives/post/x-LWWProcessingSteps/0/AllocateIOArea"
+                $ref: "#/paths/~1detectives/post/x-LWWProcessingSteps/0/AllocateIOArea"
             out:
               - containerName: LWW-LINK-PAR-03
-                $ref: "ctf2026_2.yaml/paths/~1detectives/post/x-LWWProcessingSteps/0/AllocateIOArea"
+                $ref: "#/paths/~1detectives/post/x-LWWProcessingSteps/0/AllocateIOArea"
         - Condition:
             name: LCTFC001_POST_OK
             source:
-              $ref: "ctf2026_2.yaml/paths/~1detectives/post/x-LWWProcessingSteps/0/AllocateIOArea/fields"
+              $ref: "#/paths/~1detectives/post/x-LWWProcessingSteps/0/AllocateIOArea/fields"
             boolOperator: AND
             expressions:
               - type: fieldEqualsConstant
@@ -112,9 +112,9 @@ paths:
                     $ref: "ctf2026_1.yaml/components/schemas/DetectivesCRUDLong/properties"
               - Mapping:
                   from:
-                    $ref: "ctf2026_2.yaml/paths/~1detectives/post/x-LWWProcessingSteps/0/AllocateIOArea/fields"
+                    $ref: "#/paths/~1detectives/post/x-LWWProcessingSteps/0/AllocateIOArea/fields"
                   to:
-                    $ref: "ctf2026_2.yaml/paths/~1detectives/post/x-LWWProcessingSteps/4/Condition/LWWProcessingStepsWhenTrue/0/CreateObject/properties"
+                    $ref: "#/paths/~1detectives/post/x-LWWProcessingSteps/4/Condition/LWWProcessingStepsWhenTrue/0/CreateObject/properties"
                   combinations:
                     - type: singleFields
                       fromName: RETURNCODE
@@ -148,7 +148,7 @@ paths:
                       toName: updatedDate
               - JSONWriter:
                   responseObject:
-                    $ref: "ctf2026_2.yaml/paths/~1detectives/post/x-LWWProcessingSteps/4/Condition/LWWProcessingStepsWhenTrue/0/CreateObject"
+                    $ref: "#/paths/~1detectives/post/x-LWWProcessingSteps/4/Condition/LWWProcessingStepsWhenTrue/0/CreateObject"
             LWWProcessingStepsWhenFalse:
               - CreateObject:
                   name: CTFC001_POST_RET_ERR
@@ -156,9 +156,9 @@ paths:
                     $ref: "ctf2026_1.yaml/components/schemas/DetectivesCRUDShort/properties"
               - Mapping:
                   from:
-                    $ref: "ctf2026_2.yaml/paths/~1detectives/post/x-LWWProcessingSteps/0/AllocateIOArea/fields"
+                    $ref: "#/paths/~1detectives/post/x-LWWProcessingSteps/0/AllocateIOArea/fields"
                   to:
-                    $ref: "ctf2026_2.yaml/paths/~1detectives/post/x-LWWProcessingSteps/4/Condition/LWWProcessingStepsWhenFalse/0/CreateObject/properties"
+                    $ref: "#/paths/~1detectives/post/x-LWWProcessingSteps/4/Condition/LWWProcessingStepsWhenFalse/0/CreateObject/properties"
                   combinations:
                     - type: singleFields
                       fromName: RETURNCODE
@@ -171,7 +171,7 @@ paths:
                       toName: infoMessage
               - JSONWriter:
                   responseObject:
-                    $ref: "ctf2026_2.yaml/paths/~1detectives/post/x-LWWProcessingSteps/4/Condition/LWWProcessingStepsWhenFalse/0/CreateObject"
+                    $ref: "#/paths/~1detectives/post/x-LWWProcessingSteps/4/Condition/LWWProcessingStepsWhenFalse/0/CreateObject"
   /sqlquery:
     post:
       x-LWWProcessingSteps:
@@ -180,14 +180,14 @@ paths:
             initWith: 0x00
             size: 24266
             fields:
-              $ref: "ctf2026_2.yaml/components/x-ioareas/LCTFM002/fields"
+              $ref: "#/components/x-ioareas/LCTFM002/fields"
         - ParseRequestJSON:
             name: LCTFC002_POST_JSNR
         - Mapping:
             from:
-              $ref: "ctf2026_2.yaml/paths/~1sqlquery/post/x-LWWProcessingSteps/1/ParseRequestJSON"
+              $ref: "#/paths/~1sqlquery/post/x-LWWProcessingSteps/1/ParseRequestJSON"
             to:
-              $ref: "ctf2026_2.yaml/paths/~1sqlquery/post/x-LWWProcessingSteps/0/AllocateIOArea/fields"
+              $ref: "#/paths/~1sqlquery/post/x-LWWProcessingSteps/0/AllocateIOArea/fields"
             combinations:
               - type: singleFields
                 fromName: sqlquery
@@ -197,19 +197,19 @@ paths:
             passDataWith: container
             in:
               - containerName: LWW-LINK-PAR-03
-                $ref: "ctf2026_2.yaml/paths/~1sqlquery/post/x-LWWProcessingSteps/0/AllocateIOArea"
+                $ref: "#/paths/~1sqlquery/post/x-LWWProcessingSteps/0/AllocateIOArea"
             out:
               - containerName: LWW-LINK-PAR-03
-                $ref: "ctf2026_2.yaml/paths/~1sqlquery/post/x-LWWProcessingSteps/0/AllocateIOArea"
+                $ref: "#/paths/~1sqlquery/post/x-LWWProcessingSteps/0/AllocateIOArea"
         - CreateObject:
             name: CTFM002_POST_RET_OK
             properties:
               $ref: "ctf2026_1.yaml/components/schemas/SQLQueryResponse/properties"
         - Mapping:
             from:
-              $ref: "ctf2026_2.yaml/paths/~1sqlquery/post/x-LWWProcessingSteps/0/AllocateIOArea/fields"
+              $ref: "#/paths/~1sqlquery/post/x-LWWProcessingSteps/0/AllocateIOArea/fields"
             to:
-              $ref: "ctf2026_2.yaml/paths/~1sqlquery/post/x-LWWProcessingSteps/4/CreateObject/properties"
+              $ref: "#/paths/~1sqlquery/post/x-LWWProcessingSteps/4/CreateObject/properties"
             combinations:
               - type: singleFields
                 fromName: SQLCODE-C
@@ -223,7 +223,7 @@ paths:
                     toName: resultLine
         - JSONWriter:
             responseObject:
-              $ref: "ctf2026_2.yaml/paths/~1sqlquery/post/x-LWWProcessingSteps/4/CreateObject"
+              $ref: "#/paths/~1sqlquery/post/x-LWWProcessingSteps/4/CreateObject"
   /token:
     post:
       x-LWWProcessingSteps:
@@ -232,14 +232,14 @@ paths:
             initWith: 0x00
             size: 1136
             fields:
-              $ref: "ctf2026_2.yaml/components/x-ioareas/LWWADPLI/fields"
+              $ref: "#/components/x-ioareas/LWWADPLI/fields"
         - ParseRequestJSON:
             name: LWWADPLI_JSNR
         - Mapping:
             from:
-              $ref: "ctf2026_2.yaml/paths/~1token/post/x-LWWProcessingSteps/1/ParseRequestJSON"
+              $ref: "#/paths/~1token/post/x-LWWProcessingSteps/1/ParseRequestJSON"
             to:
-              $ref: "ctf2026_2.yaml/paths/~1token/post/x-LWWProcessingSteps/0/AllocateIOArea/fields"
+              $ref: "#/paths/~1token/post/x-LWWProcessingSteps/0/AllocateIOArea/fields"
             combinations:
               - type: singleFields
                 fromName: username
@@ -252,26 +252,26 @@ paths:
             passDataWith: container
             in:
               - containerName: LWW-LINK-PAR-03
-                $ref: "ctf2026_2.yaml/paths/~1token/post/x-LWWProcessingSteps/0/AllocateIOArea"
+                $ref: "#/paths/~1token/post/x-LWWProcessingSteps/0/AllocateIOArea"
             out:
               - containerName: LWW-LINK-PAR-03
-                $ref: "ctf2026_2.yaml/paths/~1token/post/x-LWWProcessingSteps/0/AllocateIOArea"
+                $ref: "#/paths/~1token/post/x-LWWProcessingSteps/0/AllocateIOArea"
         - CreateObject:
             name: LWWADPLI_RET
             properties:
               $ref: "ctf2026_1.yaml/components/schemas/TokenResponse/properties"
         - Mapping:
             from:
-              $ref: "ctf2026_2.yaml/paths/~1token/post/x-LWWProcessingSteps/0/AllocateIOArea/fields"
+              $ref: "#/paths/~1token/post/x-LWWProcessingSteps/0/AllocateIOArea/fields"
             to:
-              $ref: "ctf2026_2.yaml/paths/~1token/post/x-LWWProcessingSteps/4/CreateObject/properties"
+              $ref: "#/paths/~1token/post/x-LWWProcessingSteps/4/CreateObject/properties"
             combinations:
               - type: singleFields
                 fromName: TOKEN
                 toName: token
         - JSONWriter:
             responseObject:
-              $ref: "ctf2026_2.yaml/paths/~1token/post/x-LWWProcessingSteps/4/CreateObject"
+              $ref: "#/paths/~1token/post/x-LWWProcessingSteps/4/CreateObject"
 components:
   x-ioareas:
     LCTFC100:

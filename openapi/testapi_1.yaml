@@ -1,0 +1,43 @@
+openapi: 3.2.0
+info:
+  version: 1.0.1
+  title: Test API
+  description: dummy API for testing
+servers:
+  - url: https://mainframeyin:8092/testapi
+paths:
+  /testPath:
+    summary: Test path URI
+    get:
+      summary: Get test path URI
+      tags:
+        - retrieve
+      responses:
+        '200':
+          description: Successful retrieval of information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/testPath"
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+        default:
+          description: Unexpected error
+      x-LWWProcessingSteps:
+        $ref: "testapi_2.yaml/paths/~1testPath/get/x-LWWProcessingSteps"
+components:
+  schemas:
+    testPath:
+      type: object
+      properties:
+        parm1:
+          $ref: "#/components/schemas/parm1"
+    parm1:
+      type: string
+      minLength: 1
+      maxLength: 8
+      example: DEADBEEF

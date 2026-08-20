@@ -1,0 +1,42 @@
+paths:
+  /testPath:
+    get:
+      x-LWWProcessingSteps:
+        - AllocateIOArea:
+            name: LTESTMOD
+            initWith: 0x00
+            size: 256
+            fields:
+              $ref: "#/components/x-ioareas/LTESTMOD/fields"
+        - Link:
+            program: TESTMOD
+            passDataWith: container
+            in:
+              - containerName: LWW-LINK-PAR-03
+                $ref: "#/paths/~1testPath/get/x-LWWProcessingSteps/0/AllocateIOArea"
+            out:
+              - containerName: LWW-LINK-PAR-03
+                $ref: "#/paths/~1testPath/get/x-LWWProcessingSteps/0/AllocateIOArea"
+        - CreateObject:
+            name: TESTMOD_RESP
+            properties:
+              $ref: "testapi_1.yaml/components/schemas/testPath/properties"
+        - Mapping:
+            from:
+              $ref: "#/paths/~1testPath/get/x-LWWProcessingSteps/0/AllocateIOArea/fields"
+            to:
+              $ref: "#/paths/~1testPath/get/x-LWWProcessingSteps/2/CreateObject/properties"
+            combinations:
+              - type: singleFields
+                fromName: PARM1
+                toName: parm1
+        - JSONWriter:
+            responseObject:
+              $ref: "#/paths/~1testPath/get/x-LWWProcessingSteps/2/CreateObject"
+components:
+  x-ioareas:
+    LTESTMOD:
+      fields:
+        - name: PARM1
+          type: CHARARRAY037
+          length: 8
