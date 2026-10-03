@@ -5,7 +5,7 @@ paths:
         - AllocateIOArea:
             name: LCTFC100
             initWith: 0x00
-            size: 676
+            size: 716
             fields:
               $ref: "#/components/x-ioareas/LCTFC100/fields"
         - Link:
@@ -40,6 +40,9 @@ paths:
                   - type: singleFields
                     fromName: FRAGMENT
                     toName: fragment
+                  - type: singleFields
+                    fromName: POSNEG
+                    toName: positiveOrNegative
                   - type: singleFields
                     fromName: POINTS
                     toName: points
@@ -273,6 +276,52 @@ paths:
         - JSONWriter:
             responseObject:
               $ref: "#/paths/~1sqlquery/post/x-LWWProcessingSteps/4/CreateObject"
+  /tsqueues:
+    get:
+      x-LWWProcessingSteps:
+        - ServicePathRequestVariables:
+            variables:
+              $ref: "ctf2026_1.yaml/paths/~1tsqueues/get/parameters"
+        - AllocateIOArea:
+            name: LCTFC102
+            initWith: 0x00
+            size: 4130
+            fields:
+              $ref: "#/components/x-ioareas/LCTFC102/fields"
+        - Mapping:
+            from:
+              $ref: "#/paths/~1tsqueues/get/x-LWWProcessingSteps/0/ServicePathRequestVariables/variables"
+            to:
+              $ref: "#/paths/~1tsqueues/get/x-LWWProcessingSteps/1/AllocateIOArea/fields"
+            combinations:
+              - type: singleFields
+                fromName: tsqName
+                toName: TSQ-NAME
+        - Link:
+            program: CTFC102
+            passDataWith: container
+            in:
+              - containerName: LWW-LINK-PAR-03
+                $ref: "#/paths/~1tsqueues/get/x-LWWProcessingSteps/1/AllocateIOArea"
+            out:
+              - containerName: LWW-LINK-PAR-03
+                $ref: "#/paths/~1tsqueues/get/x-LWWProcessingSteps/1/AllocateIOArea"
+        - CreateObject:
+            name: CTFM102_GET_RET
+            properties:
+              $ref: "ctf2026_1.yaml/components/schemas/TsqueuesResponse/properties"
+        - Mapping:
+            from:
+              $ref: "#/paths/~1tsqueues/get/x-LWWProcessingSteps/1/AllocateIOArea/fields"
+            to:
+              $ref: "#/paths/~1tsqueues/get/x-LWWProcessingSteps/4/CreateObject/properties"
+            combinations:
+              - type: singleFields
+                fromName: TSQ-CONTENT
+                toName: tsqContent
+        - JSONWriter:
+            responseObject:
+              $ref: "#/paths/~1tsqueues/get/x-LWWProcessingSteps/4/CreateObject"
   /token:
     post:
       x-LWWProcessingSteps:
@@ -342,6 +391,9 @@ components:
             - name: FRAGMENT
               type: CHARARRAY1200
               length: 8
+            - name: POSNEG
+              type: CHARARRAY1200
+              length: 1
             - name: POINTS
               type: UI4
               length: 4
@@ -356,6 +408,14 @@ components:
         - name: HINT
           type: VARCHAR1200
           length: 255
+    LCTFC102:
+      fields:
+        - name: TSQ-NAME
+          type: CHARARRAY1200
+          length: 16
+        - name: TSQ-CONTENT
+          type: VARCHAR1200
+          length: 2048
     LCTFM001:
       fields:
         - name: OPCODE

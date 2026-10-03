@@ -5,11 +5,12 @@ define([
     "dojo/on",
     "dojo/request/xhr",
     "dijit/form/NumberSpinner",
+    "dijit/registry",
     "dijit/_WidgetBase",
     "dijit/_TemplatedMixin",
     "dijit/_WidgetsInTemplateMixin",
     "dojo/text!./templates/Suspect1Widget.html"
-], function(declare, lang, domClass, on, xhr, NumberSpinner, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, template) {
+], function(declare, lang, domClass, on, xhr, NumberSpinner, registry, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, template) {
     return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
         baseClass: "suspect1Widget",
         templateString: template,
@@ -34,6 +35,8 @@ define([
         ],
         startup: function() {
             this.inherited(arguments);
+
+            this.buttonSkip1.style.display = "none";
 
             on(this.buttonHint1, "click", lang.hitch(this, function(event) {
                 xhr("API/v1/hints?hintCode=SUSPECT1", {
@@ -119,7 +122,7 @@ define([
                         sync: true
                     }).then(lang.hitch(this, function(data) {
                         if (data && data.correct && data.correct == "true") {
-                            console.log("yep");
+                            this.fragmentResolved();
                         } else {
                             this.finalFeedback1.innerText = "That is not correct";
                         }
@@ -130,6 +133,11 @@ define([
                     this.finalFeedback1.innerText = "Give a non blank value";
                 }
             }));
+
+            on(this.buttonSkip1, "click", function(event) {
+                let parent = registry.byId("suspects");
+                parent.switchSuspects(2);
+            });
 
             xhr("API/v1/loginInfo", {
                 handleAs: "json",
@@ -145,7 +153,7 @@ define([
                     }
 
                     if (suspect1Done) {
-                        this.buttonSkip1.style.display = "inline";
+                        this.fragmentResolved();
                     }
                 }
             }), lang.hitch(this, function(err) {
@@ -210,6 +218,11 @@ define([
             result += hex[i + 1] + hex[i];
           }
           return result;
+        },
+        fragmentResolved: function() {
+            this.status1.innerText = "RESOLVED";
+            this.buttonSkip1.style.display = "inline";
+            domClass.add(this.domNode, "solved");
         }
     });
 });
