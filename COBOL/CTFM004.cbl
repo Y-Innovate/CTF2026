@@ -116,7 +116,7 @@
 
            EXEC SQL
               DECLARE C1 CURSOR FOR
-                 SELECT FRAGMENT, POINTS
+                 SELECT FRAGMENT, POSNEG, POINTS
                    FROM PROGRESS
                   WHERE USERID = :DCLPROGRESS.USERID
                     FOR FETCH ONLY
@@ -172,6 +172,7 @@
            EXEC SQL
               FETCH C1
                INTO :DCLPROGRESS.FRAGMENT,
+                    :DCLPROGRESS.POSNEG,
                     :DCLPROGRESS.POINTS
            END-EXEC
 
@@ -181,6 +182,8 @@
 
               MOVE FRAGMENT OF DCLPROGRESS TO
                    FRAGMENT OF P-LCTFM004(FRAGMENT-COUNT OF P-LCTFM004)
+              MOVE POSNEG OF DCLPROGRESS TO
+                   POSNEG OF P-LCTFM004(FRAGMENT-COUNT OF P-LCTFM004)
               MOVE POINTS OF DCLPROGRESS TO
                    POINTS OF P-LCTFM004(FRAGMENT-COUNT OF P-LCTFM004)
            WHEN 100

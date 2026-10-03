@@ -63,7 +63,6 @@
                10  I-S-Info            PIC S9(9) BINARY.
 
        01  W-SUSPECT-TABLE.
-           05  W-HINT-USED           PIC X.
            05  W-SUSPECT-IDX         PIC S9(4) COMP-5.
            05  W-SUSPECT             PIC X(64) OCCURS 3 TIMES.
 
@@ -109,8 +108,6 @@
       * R005-CHECK-SUSPECTS: Check list of submitted suspects         *
       *===============================================================*
        R005-CHECK-SUSPECTS SECTION.
-           MOVE '0' TO W-HINT-USED
-
            PERFORM VARYING W-SUSPECT-IDX FROM 1 BY 1
              UNTIL W-SUSPECT-IDX > 3
               MOVE SPACES TO W-SUSPECT(W-SUSPECT-IDX)
@@ -145,14 +142,6 @@
                             W-SUSPECT(W-SUSPECT-IDX)
                     ELSE
                        SET SW-LIST-INCORRECT TO TRUE
-                    END-IF
-                 ELSE
-                    IF  W-FF-NAMELEN = 9
-                    AND W-FF-NAME(1:9) = 'hint_used'
-                       IF  W-FF-VALUELEN = 1
-                       AND W-FF-VALUE(1:1) = '1'
-                          MOVE '1' TO W-HINT-USED
-                       END-IF
                     END-IF
                  END-IF
 
@@ -222,6 +211,7 @@
               IF RETURNCODE OF W-LCTFM001 = N'00'
                  MOVE W-USERID TO USERID OF W-LCTFM003
                  MOVE 'INTRO' TO FRAGMENT OF W-LCTFM003
+                 MOVE 'P' TO POSNEG OF W-LCTFM003
 
                  MOVE 'R' TO OPCODE OF W-LCTFM003
 
@@ -251,11 +241,8 @@
                  IF RETURNCODE OF W-LCTFM003 = '04'
                     MOVE 'C' TO OPCODE OF W-LCTFM003
 
-                    IF W-HINT-USED = '1'
-                       MOVE 5 TO POINTS OF W-LCTFM003
-                    ELSE
-                       MOVE 10 TO POINTS OF W-LCTFM003
-                    END-IF
+                    MOVE 'P' TO POSNEG OF W-LCTFM003
+                    MOVE 10 TO POINTS OF W-LCTFM003
 
                     MOVE C-CHNL-NAME-LWW      TO W-CHNL-NAME
                     MOVE C-CONT-NAME-LWW-03   TO W-CONT-NAME

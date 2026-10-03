@@ -8,4 +8,5 @@
                                    DEPENDING ON FRAGMENT-COUNT OF
                                                 LCTFC100.
                 15 FRAGMENT       PIC N(8).
+                15 POSNEG         PIC N(1).
                 15 POINTS         PIC S9(9) USAGE COMP-5.

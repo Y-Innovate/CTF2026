@@ -14,7 +14,7 @@
       *     04 01 = Not found                                         *
       *     08 01 = Error: OPCODE invalid                             *
       *     08 02 = Error: USERID required                            *
-      *     08 03 = Error: NICKNAME required                          *
+      *     08 03 = Error: POSNEG required                            *
       *     08 11 = Error: INSERT of duplicate key                    *
       *     08 12 = Error: SQL error in INSERT                        *
       *     08 21 = Error: SQL error in SELECT                        *
@@ -119,6 +119,16 @@
               MOVE '02' TO REASONCODE OF W-LCTFM003
               MOVE 'FRAGMENT is required' TO INFOMESSAGE OF W-LCTFM003
            END-IF
+
+           IF  RETURNCODE OF W-LCTFM003 = '00'
+           AND OPCODE OF W-LCTFM003 = 'R'
+           AND POSNEG OF W-LCTFM003 NOT = 'P'
+           AND POSNEG OF W-LCTFM003 NOT = 'N'
+              MOVE '08' TO RETURNCODE OF W-LCTFM003
+              MOVE '03' TO REASONCODE OF W-LCTFM003
+              MOVE 'POSNEG is required for read' TO
+                   INFOMESSAGE OF W-LCTFM003
+           END-IF
            .
        R002-CHECKPARM-END.
            EXIT.
@@ -143,9 +153,11 @@
                 INTO PROGRESS
                      (USERID,
                       FRAGMENT,
+                      POSNEG,
                       POINTS)
               VALUES(:DCLPROGRESS.USERID,
                      :DCLPROGRESS.FRAGMENT,
+                     :DCLPROGRESS.POSNEG,
                      :DCLPROGRESS.POINTS)
            END-EXEC
 
@@ -178,6 +190,7 @@
        R120-SELECT SECTION.
            MOVE USERID OF W-LCTFM003 TO USERID OF DCLPROGRESS
            MOVE FRAGMENT OF W-LCTFM003 TO FRAGMENT OF DCLPROGRESS
+           MOVE POSNEG OF W-LCTFM003 TO POSNEG OF DCLPROGRESS
 
            EXEC SQL
               SELECT POINTS
@@ -185,6 +198,7 @@
                 FROM PROGRESS
                WHERE USERID = :DCLPROGRESS.USERID
                  AND FRAGMENT = :DCLPROGRESS.FRAGMENT
+                 AND POSNEG = :DCLPROGRESS.POSNEG
            END-EXEC
 
            MOVE SQLCODE TO W-SQLCODE
@@ -221,6 +235,7 @@
                  SET POINTS = :DCLPROGRESS.POINTS
                WHERE USERID = :DCLPROGRESS.USERID
                  AND FRAGMENT = :DCLPROGRESS.FRAGMENT
+                 AND POSNEG = :DCLPROGRESS.POSNEG
            END-EXEC
 
            MOVE SQLCODE TO W-SQLCODE
@@ -252,12 +267,14 @@
        R140-DELETE SECTION.
            MOVE USERID OF W-LCTFM003 TO USERID OF DCLPROGRESS
            MOVE FRAGMENT OF W-LCTFM003 TO FRAGMENT OF DCLPROGRESS
+           MOVE POSNEG OF W-LCTFM003 TO POSNEG OF DCLPROGRESS
 
            EXEC SQL
               DELETE
                 FROM PROGRESS
                WHERE USERID = :DCLPROGRESS.USERID
                  AND FRAGMENT = :DCLPROGRESS.FRAGMENT
+                 AND POSNEG = :DCLPROGRESS.POSNEG
            END-EXEC
 
            MOVE SQLCODE TO W-SQLCODE
@@ -289,6 +306,7 @@
        R210-COPY-TO-DCL SECTION.
            MOVE USERID OF W-LCTFM003 TO USERID OF DCLPROGRESS
            MOVE FRAGMENT OF W-LCTFM003 TO FRAGMENT OF DCLPROGRESS
+           MOVE POSNEG OF W-LCTFM003 TO POSNEG OF DCLPROGRESS
            MOVE POINTS OF W-LCTFM003 TO POINTS OF DCLPROGRESS
            .
        R210-COPY-TO-DCL-END.

@@ -25,6 +25,7 @@
            05  W-USERID              PIC X(8)  VALUE SPACES.
            05  W-EIBRESP             PIC 9(8).
            05  W-EIBRESP2            PIC 9(8).
+           05  W-IDX                 PIC S9(4) USAGE COMP-5.
 
            05  SW-CONT-FOUND-VAL     PIC X     VALUE 'N'.
                88  SW-CONT-FOUND               VALUE 'Y'.
@@ -98,6 +99,8 @@
               SET ADDRESS OF P-CHAR TO W-CONT-POINTER
               MOVE P-CHAR(1:W-CONT-LENGTH) TO W-LINKPAR
            END-IF
+
+           MOVE 0 TO FRAGMENT-COUNT OF W-LCTFC100
            .
        R001-INIT-END.
            EXIT.
@@ -135,21 +138,20 @@
               CALL W-PGMNAME USING W-LCTFM004
 
               IF RETURNCODE OF W-LCTFM004 = '00'
-                 MOVE FRAGMENT-COUNT OF W-LCTFM004 TO
-                      FRAGMENT-COUNT OF W-LCTFC100
-
-                 PERFORM VARYING FRAGMENT-COUNT OF W-LCTFM004
+                 PERFORM VARYING W-IDX
                     FROM 1 BY 1
-                   UNTIL FRAGMENT-COUNT OF W-LCTFM004 >
-                         FRAGMENT-COUNT OF W-LCTFC100
+                   UNTIL W-IDX > FRAGMENT-COUNT OF W-LCTFM004
+                    ADD 1 TO FRAGMENT-COUNT OF W-LCTFC100
                     MOVE FUNCTION NATIONAL-OF(FRAGMENT OF W-LCTFM004(
-                            FRAGMENT-COUNT OF W-LCTFM004)) TO
+                            W-IDX)) TO
                          FRAGMENT OF W-LCTFC100(
-                            FRAGMENT-COUNT OF W-LCTFM004)
-                    MOVE POINTS OF W-LCTFM004(
-                            FRAGMENT-COUNT OF W-LCTFM004) TO
+                            FRAGMENT-COUNT OF W-LCTFC100)
+                    MOVE POSNEG OF W-LCTFM004(W-IDX) TO
+                         POSNEG OF W-LCTFC100(
+                            FRAGMENT-COUNT OF W-LCTFC100)
+                    MOVE POINTS OF W-LCTFM004(W-IDX) TO
                          POINTS OF W-LCTFC100(
-                            FRAGMENT-COUNT OF W-LCTFM004)
+                            FRAGMENT-COUNT OF W-LCTFC100)
                  END-PERFORM
               ELSE
                  IF RETURNCODE OF W-LCTFM004 NOT = '04'
