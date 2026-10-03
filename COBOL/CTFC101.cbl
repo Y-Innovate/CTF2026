@@ -52,6 +52,8 @@
                    15  Facility-ID     PIC XXX.
                10  I-S-Info            PIC S9(9) BINARY.
        
+       01  W-LCTFC101.
+           COPY LCTFC101.
        01  W-LCTFM003.
            COPY LCTFM003.
        01  W-LINKPAR.
@@ -80,7 +82,7 @@
 
            IF SW-CONT-FOUND
               SET ADDRESS OF P-CHAR TO W-CONT-POINTER
-              MOVE P-CHAR(1:W-CONT-LENGTH) TO W-LCTFM003
+              MOVE P-CHAR(1:W-CONT-LENGTH) TO W-LCTFC101
            END-IF
 
            MOVE C-CHNL-NAME-LWW    TO W-CHNL-NAME 
@@ -92,6 +94,8 @@
               SET ADDRESS OF P-CHAR TO W-CONT-POINTER
               MOVE P-CHAR(1:W-CONT-LENGTH) TO W-LINKPAR
            END-IF
+
+           INITIALIZE W-LCTFM003
            .
        R001-INIT-END.
            EXIT.
@@ -100,6 +104,49 @@
       * R005-DO-HINT: Retrieve HINT and insert negative PROGRESS      *
       *===============================================================*
        R005-DO-HINT SECTION.
+           MOVE ZERO TO HINT-LEN OF W-LCTFC101
+
+           IF FRAGMENT OF W-LCTFC101 = N'INTRO'
+              MOVE 1 TO HINT-LEN OF W-LCTFC101
+              STRING N'To convert Unix epoch timestamps to local time'
+                     N' use TIMESTAMP(''1970-01-01'') + ACCTIME SECONDS'
+                     N' + CURRENT TIMEZONE'
+                     DELIMITED BY SIZE
+                INTO HINT-TEXT OF W-LCTFC101
+                WITH POINTER HINT-LEN OF W-LCTFC101
+              SUBTRACT 1 FROM HINT-LEN
+
+              MOVE -5 TO POINTS OF LCTFM003
+           END-IF
+
+           IF HINT-LEN OF W-LCTFC101 > 0
+              MOVE 'C' TO OPCODE OF W-LCTFM003 
+              MOVE FUNCTION DISPLAY-OF(USERID OF W-LCTFC101) TO
+                   USERID OF W-LCTFM003
+              MOVE FUNCTION DISPLAY-OF(FRAGMENT OF W-LCTFC101) TO
+                   FRAGMENT OF W-LCTFM003
+
+              MOVE C-CHNL-NAME-LWW      TO W-CHNL-NAME
+              MOVE C-CONT-NAME-LWW-03   TO W-CONT-NAME
+              MOVE LENGTH OF W-LCTFM003 TO W-CONT-LENGTH
+              SET W-CONT-POINTER TO ADDRESS OF W-LCTFM003
+
+              PERFORM R920-PUT-CONTAINER
+
+              EXEC CICS
+                 LINK PROGRAM('CTFC003') CHANNEL(C-CHNL-NAME-LWW)
+              END-EXEC
+
+              MOVE C-CHNL-NAME-LWW    TO W-CHNL-NAME
+              MOVE C-CONT-NAME-LWW-03 TO W-CONT-NAME
+
+              PERFORM R910-GET-CONTAINER
+
+              IF SW-CONT-FOUND
+                 SET ADDRESS OF P-CHAR TO W-CONT-POINTER
+                 MOVE P-CHAR(1:W-CONT-LENGTH) TO W-LCTFM003
+              END-IF
+           END-IF
            .
        R005-DO-HINT-END.
            EXIT.
@@ -110,8 +157,8 @@
        R009-FINISH SECTION.
            MOVE C-CHNL-NAME-LWW      TO W-CHNL-NAME 
            MOVE C-CONT-NAME-LWW-03   TO W-CONT-NAME
-           MOVE LENGTH OF W-LCTFM003 TO W-CONT-LENGTH
-           SET W-CONT-POINTER TO ADDRESS OF W-LCTFM003
+           MOVE LENGTH OF W-LCTFC101 TO W-CONT-LENGTH
+           SET W-CONT-POINTER TO ADDRESS OF W-LCTFC101
 
            PERFORM R920-PUT-CONTAINER
 
