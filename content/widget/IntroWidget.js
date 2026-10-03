@@ -19,7 +19,18 @@ define([
             this.buttonSkip.style.display = "none";
 
             on(this.buttonHint1, "click", lang.hitch(this, function(event) {
-                domClass.add(this.hint1, "open");
+                xhr("API/v1/hints?hintCode=INTRO", {
+                    handleAs: "json",
+                    preventCache: true,
+                    sync: true
+                }).then(lang.hitch(this, function(data) {
+                    if (data && data.hintText) {
+                        this.hint1.innerText = data.hintText;
+                        domClass.add(this.hint1, "open");
+                    }
+                }), lang.hitch(this, function(err) {
+                    console.log(err);
+                }));
             }));
 
             on(this.buttonExecuteSQL, "click", lang.hitch(this, function(event) {
@@ -108,7 +119,7 @@ define([
                     let introDone = false;
 
                     for (i = 0; i < data.fragmentsResolved.length && !introDone; i++) {
-                        if (data.fragmentsResolved[i].fragment && data.fragmentsResolved[i].fragment == "INTRO")
+                        if (data.fragmentsResolved[i].fragment && data.fragmentsResolved[i].fragment == "INTRO" && data.fragmentsResolved[i].positiveOrNegative == "P")
                             introDone = true;
                     }
 

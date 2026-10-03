@@ -31,7 +31,7 @@ define([
                     let introDone = false;
 
                     for (i = 0; i < data.fragmentsResolved.length && !introDone; i++) {
-                        if (data.fragmentsResolved[i].fragment && data.fragmentsResolved[i].fragment == "INTRO")
+                        if (data.fragmentsResolved[i].fragment && data.fragmentsResolved[i].fragment == "INTRO" && data.fragmentsResolved[i].positiveOrNegative == "P")
                             introDone = true;
                     }
 

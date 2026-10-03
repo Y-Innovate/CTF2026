@@ -36,8 +36,19 @@ define([
             this.inherited(arguments);
 
             on(this.buttonHint1, "click", lang.hitch(this, function(event) {
-                domClass.add(this.hint1, "open");
-                domClass.add(this.feedbackHint1, "open");
+                xhr("API/v1/hints?hintCode=SUSPECT1", {
+                    handleAs: "json",
+                    preventCache: true,
+                    sync: true
+                }).then(lang.hitch(this, function(data) {
+                    if (data && data.hintText) {
+                        this.hint1.innerText = data.hintText;
+                        domClass.add(this.hint1, "open");
+                        domClass.add(this.feedbackHint1, "open");
+                    }
+                }), lang.hitch(this, function(err) {
+                    console.log(err);
+                }));
             }));
 
             on(this.inputWork1, "input", lang.hitch(this, function(event) {
@@ -118,6 +129,27 @@ define([
                 } else {
                     this.finalFeedback1.innerText = "Give a non blank value";
                 }
+            }));
+
+            xhr("API/v1/loginInfo", {
+                handleAs: "json",
+                preventCache: true,
+                sync: true
+            }).then(lang.hitch(this, function(data) {
+                if (data && data.fragmentsResolved && Array.isArray(data.fragmentsResolved)) {
+                    let suspect1Done = false;
+
+                    for (i = 0; i < data.fragmentsResolved.length && !suspect1Done; i++) {
+                        if (data.fragmentsResolved[i].fragment && data.fragmentsResolved[i].fragment == "SUSPECT1" && data.fragmentsResolved[i].positiveOrNegative == "P")
+                            suspect1Done = true;
+                    }
+
+                    if (suspect1Done) {
+                        this.buttonSkip1.style.display = "inline";
+                    }
+                }
+            }), lang.hitch(this, function(err) {
+                console.log(err);
             }));
         },
         normalizeHex: function(hexStr) {
