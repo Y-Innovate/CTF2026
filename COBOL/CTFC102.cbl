@@ -1,5 +1,5 @@
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. CTFC100.
+       PROGRAM-ID. CTFC102.
       *===============================================================*
       * This program is a REST program for the CTF2026 app.           *
       * loginInfo                                                     *
@@ -22,11 +22,10 @@
            05  W-CONT-POINTER        POINTER.
            05  W-CONT-LENGTH         PIC S9(9) USAGE COMP-5.
            05  W-RETURNCODE          PIC X(2)  VALUE '00'.
-           05  W-PGMNAME             PIC X(8)  VALUE SPACES.
-           05  W-USERID              PIC X(8)  VALUE SPACES.
            05  W-EIBRESP             PIC 9(8).
            05  W-EIBRESP2            PIC 9(8).
-           05  W-IDX                 PIC S9(4) USAGE COMP-5.
+           05  W-TSQ-NAME            PIC X(16).
+           05  W-TSQ-CONTENT         PIC X(2048).
 
            05  SW-CONT-FOUND-VAL     PIC X     VALUE 'N'.
                88  SW-CONT-FOUND               VALUE 'Y'.
@@ -54,12 +53,8 @@
                    15  Facility-ID     PIC XXX.
                10  I-S-Info            PIC S9(9) BINARY.
 
-       01  W-LCTFC100.
-           COPY LCTFC100 REPLACING ==LCTFC100== BY ==W-LCTFC100-GRP==.
-       01  W-LCTFM001.
-           COPY LCTFM001.
-       01  W-LCTFM004.
-           COPY LCTFM004 REPLACING ==LCTFM004== BY ==W-LCTFM004-GRP==.
+       01  W-LCTFC102.
+           COPY LCTFC102.
        01  W-LINKPAR.
            COPY LINKPAR.
 
@@ -70,7 +65,7 @@
        MAIN SECTION.
            PERFORM R001-INIT
 
-           PERFORM R005-CALL-CTFM001
+           PERFORM R005-READQ-TS
 
            PERFORM R009-FINISH
            .
@@ -86,10 +81,10 @@
 
            IF SW-CONT-FOUND
               SET ADDRESS OF P-CHAR TO W-CONT-POINTER
-              MOVE P-CHAR(1:W-CONT-LENGTH) TO W-LCTFC100
+              MOVE P-CHAR(1:W-CONT-LENGTH) TO W-LCTFC102
            END-IF
 
-           MOVE 0 TO FRAGMENT-COUNT OF W-LCTFC100
+           MOVE 0 TO TSQ-CONTENT-LEN OF W-LCTFC102
 
            MOVE C-CHNL-NAME-LWW    TO W-CHNL-NAME
            MOVE C-CONT-NAME-LWW-00 TO W-CONT-NAME
@@ -100,76 +95,32 @@
               SET ADDRESS OF P-CHAR TO W-CONT-POINTER
               MOVE P-CHAR(1:W-CONT-LENGTH) TO W-LINKPAR
            END-IF
-
-           MOVE 0 TO FRAGMENT-COUNT OF W-LCTFC100
            .
        R001-INIT-END.
            EXIT.
 
       *===============================================================*
-      * R005-CALL-CTFM001: Call CTFM001                               *
+      * R005-READQ-TS: Read transient storage queue                   *
       *===============================================================*
-       R005-CALL-CTFM001 SECTION.
+       R005-READQ-TS SECTION.
+           MOVE FUNCTION DISPLAY-OF(TSQ-NAME OF W-LCTFC102) TO
+                W-TSQ-NAME
+           MOVE LENGTH OF W-TSQ-CONTENT TO TSQ-CONTENT-LEN OF W-LCTFC102
+
            EXEC CICS
-              ASSIGN USERID(W-USERID)
+              READQ TS QNAME(W-TSQ-NAME) ITEM(1) INTO(W-TSQ-CONTENT)
+                       LENGTH(TSQ-CONTENT-LEN OF W-LCTFC102) NOHANDLE
            END-EXEC
 
-           MOVE FUNCTION NATIONAL-OF(W-USERID) TO USERID OF W-LCTFC100
-
-           MOVE N'R' TO OPCODE OF W-LCTFM001
-           MOVE USERID OF W-LCTFC100 TO USERID OF W-LCTFM001
-
-           MOVE 'CTFM001' TO W-PGMNAME
-
-           CALL W-PGMNAME USING W-LCTFM001
-
-           IF RETURNCODE OF W-LCTFM001 = N'00'
-              MOVE NICKNAME-LEN OF W-LCTFM001 TO
-                   NICKNAME-LEN OF W-LCTFC100
-              IF NICKNAME-LEN OF W-LCTFM001 > 0
-                 MOVE NICKNAME-TEXT OF W-LCTFM001(1:
-                         NICKNAME-LEN OF W-LCTFM001) TO
-                      NICKNAME-TEXT OF W-LCTFC100
-              END-IF
-
-              MOVE W-USERID TO USERID OF W-LCTFM004
-
-              MOVE 'CTFM004' TO W-PGMNAME
-
-              CALL W-PGMNAME USING W-LCTFM004
-
-              IF RETURNCODE OF W-LCTFM004 = '00'
-                 PERFORM VARYING W-IDX
-                    FROM 1 BY 1
-                   UNTIL W-IDX > FRAGMENT-COUNT OF W-LCTFM004
-                    ADD 1 TO FRAGMENT-COUNT OF W-LCTFC100
-                    MOVE FUNCTION NATIONAL-OF(FRAGMENT OF W-LCTFM004(
-                            W-IDX)) TO
-                         FRAGMENT OF W-LCTFC100(
-                            FRAGMENT-COUNT OF W-LCTFC100)
-                    MOVE POSNEG OF W-LCTFM004(W-IDX) TO
-                         POSNEG OF W-LCTFC100(
-                            FRAGMENT-COUNT OF W-LCTFC100)
-                    MOVE POINTS OF W-LCTFM004(W-IDX) TO
-                         POINTS OF W-LCTFC100(
-                            FRAGMENT-COUNT OF W-LCTFC100)
-                 END-PERFORM
-              ELSE
-                 IF RETURNCODE OF W-LCTFM004 NOT = '04'
-                    MOVE 500 TO STSCODE OF W-LINKPAR
-                    MOVE 21  TO STSTXTL OF W-LINKPAR
-                    MOVE 'Internal Server Error' TO STSTXTT OF W-LINKPAR
-                 END-IF
-              END-IF
+           IF EIBRESP = DFHRESP(NORMAL)
+              MOVE FUNCTION NATIONAL-OF(W-TSQ-CONTENT(1:
+                      TSQ-CONTENT-LEN OF W-LCTFC102)) TO
+                   TSQ-CONTENT-TEXT OF W-LCTFC102
            ELSE
-              IF RETURNCODE OF W-LCTFM001 NOT = N'04'
-                 MOVE 500 TO STSCODE OF W-LINKPAR
-                 MOVE 21  TO STSTXTL OF W-LINKPAR
-                 MOVE 'Internal Server Error' TO STSTXTT OF W-LINKPAR
-              END-IF
+              MOVE 0 TO TSQ-CONTENT-LEN OF W-LCTFC102
            END-IF
            .
-       R005-CALL-CTFM001-END.
+       R005-READQ-TS-END.
            EXIT.
 
       *===============================================================*
@@ -178,8 +129,8 @@
        R009-FINISH SECTION.
            MOVE C-CHNL-NAME-LWW      TO W-CHNL-NAME
            MOVE C-CONT-NAME-LWW-03   TO W-CONT-NAME
-           MOVE LENGTH OF W-LCTFC100 TO W-CONT-LENGTH
-           SET W-CONT-POINTER TO ADDRESS OF W-LCTFC100
+           MOVE LENGTH OF W-LCTFC102 TO W-CONT-LENGTH
+           SET W-CONT-POINTER TO ADDRESS OF W-LCTFC102
 
            PERFORM R920-PUT-CONTAINER
 
@@ -257,4 +208,4 @@
            .
        R930-PUT-CONTAINER-END.
            EXIT.
-       END PROGRAM CTFC100.
+       END PROGRAM CTFC102.
