@@ -58,7 +58,6 @@
                10  I-S-Info            PIC S9(9) BINARY.
 
        01  W-SUSPECT-ANSWERS.
-           05  W-HINT-USED           PIC X.
            05  W-SUSPECT-ANSWER-GRP.
                10  W-SUSPECT-ANSWER1 PIC X  VALUE SPACE.
                10  W-SUSPECT-ANSWER2 PIC X  VALUE SPACE.
@@ -106,7 +105,6 @@
       * R005-CHECK-ANSWER: Check suspect puzzle answer                *
       *===============================================================*
        R005-CHECK-ANSWER SECTION.
-           MOVE '0' TO W-HINT-USED
            MOVE SPACES TO W-SUSPECT-ANSWER-STR
 
            EXEC CICS
@@ -142,14 +140,6 @@
                        WHEN W-FF-NAME(1:16) = 'answer_suspect_3'
                           CONTINUE
                     END-EVALUATE
-                 ELSE
-                    IF  W-FF-NAMELEN = 9
-                    AND W-FF-NAME(1:9) = 'hint_used'
-                       IF  W-FF-VALUELEN = 1
-                       AND W-FF-VALUE(1:1) = '1'
-                          MOVE '1' TO W-HINT-USED
-                       END-IF
-                    END-IF
                  END-IF
 
                  EXEC CICS
@@ -204,6 +194,7 @@
               IF RETURNCODE OF W-LCTFM001 = N'00'
                  MOVE W-USERID TO USERID OF W-LCTFM003
                  MOVE 'SUSPECT1' TO FRAGMENT OF W-LCTFM003
+                 MOVE 'P' TO POSNEG OF W-LCTFM003
 
                  MOVE 'R' TO OPCODE OF W-LCTFM003
 
@@ -234,11 +225,8 @@
                  OR RETURNCODE OF W-LCTFM003 = '04'
                     MOVE 'C' TO OPCODE OF W-LCTFM003
 
-                    IF W-HINT-USED = '1'
-                       MOVE 5 TO POINTS OF W-LCTFM003
-                    ELSE
-                       MOVE 10 TO POINTS OF W-LCTFM003
-                    END-IF
+                    MOVE 'P' TO POSNEG OF W-LCTFM003
+                    MOVE 10 TO POINTS OF W-LCTFM003
 
                     MOVE C-CHNL-NAME-LWW      TO W-CHNL-NAME
                     MOVE C-CONT-NAME-LWW-03   TO W-CONT-NAME

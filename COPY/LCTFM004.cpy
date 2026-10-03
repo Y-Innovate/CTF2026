@@ -8,4 +8,5 @@
                                    DEPENDING ON FRAGMENT-COUNT OF
                                                 LCTFM004.
                 15 FRAGMENT       PIC X(8).
+                15 POSNEG         PIC X(1).
                 15 POINTS         PIC S9(9) USAGE COMP-5.

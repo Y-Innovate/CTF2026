@@ -106,7 +106,8 @@
        R005-DO-HINT SECTION.
            MOVE ZERO TO HINT-LEN OF W-LCTFC101
 
-           IF FRAGMENT OF W-LCTFC101 = N'INTRO'
+           EVALUATE FRAGMENT OF W-LCTFC101
+           WHEN N'INTRO'
               MOVE 1 TO HINT-LEN OF W-LCTFC101
               STRING N'To convert Unix epoch timestamps to local time'
                      N' use TIMESTAMP(''1970-01-01'') + ACCTIME SECONDS'
@@ -114,10 +115,22 @@
                      DELIMITED BY SIZE
                 INTO HINT-TEXT OF W-LCTFC101
                 WITH POINTER HINT-LEN OF W-LCTFC101
-              SUBTRACT 1 FROM HINT-LEN
+              SUBTRACT 1 FROM HINT-LEN OF W-LCTFC101
 
               MOVE -5 TO POINTS OF LCTFM003
-           END-IF
+
+           WHEN N'SUSPECT1'
+              MOVE 1 TO HINT-LEN OF W-LCTFC101
+              STRING N'These strings were found on the mainframe,'
+                     N' so they''re in EBCDIC.'
+                     N' I''ll show the translated values.'
+                     DELIMITED BY SIZE
+                INTO HINT-TEXT OF W-LCTFC101
+                WITH POINTER HINT-LEN OF W-LCTFC101
+              SUBTRACT 1 FROM HINT-LEN OF W-LCTFC101
+
+              MOVE -5 TO POINTS OF LCTFM003
+           END-EVALUATE
 
            IF HINT-LEN OF W-LCTFC101 > 0
               MOVE 'C' TO OPCODE OF W-LCTFM003 
@@ -125,6 +138,7 @@
                    USERID OF W-LCTFM003
               MOVE FUNCTION DISPLAY-OF(FRAGMENT OF W-LCTFC101) TO
                    FRAGMENT OF W-LCTFM003
+              MOVE 'N' TO POSNEG OF W-LCTFM003
 
               MOVE C-CHNL-NAME-LWW      TO W-CHNL-NAME
               MOVE C-CONT-NAME-LWW-03   TO W-CONT-NAME

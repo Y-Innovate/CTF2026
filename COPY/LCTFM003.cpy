@@ -5,4 +5,5 @@
              10 INFOMESSAGE       PIC X(72).
              10 USERID            PIC X(08).
              10 FRAGMENT          PIC X(08).
+             10 POSNEG            PIC X.
              10 POINTS            PIC S9(9) USAGE COMP-5.
