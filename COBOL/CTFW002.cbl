@@ -196,7 +196,7 @@
 
               MOVE N'R' TO OPCODE OF W-LCTFM001
 
-              MOVE C-CHNL-NAME-LWW      TO W-CHNL-NAME 
+              MOVE C-CHNL-NAME-LWW      TO W-CHNL-NAME
               MOVE C-CONT-NAME-LWW-03   TO W-CONT-NAME
               MOVE LENGTH OF W-LCTFM001 TO W-CONT-LENGTH
               SET W-CONT-POINTER TO ADDRESS OF W-LCTFM001
@@ -249,7 +249,6 @@
                  END-IF
 
                  IF RETURNCODE OF W-LCTFM003 = '04'
-                 OR RETURNCODE OF W-LCTFM003 = '04'
                     MOVE 'C' TO OPCODE OF W-LCTFM003
 
                     IF W-HINT-USED = '1'
@@ -258,7 +257,28 @@
                        MOVE 10 TO POINTS OF W-LCTFM003
                     END-IF
 
-                    CALL W-PGMNAME USING W-LCTFM003
+                    MOVE C-CHNL-NAME-LWW      TO W-CHNL-NAME
+                    MOVE C-CONT-NAME-LWW-03   TO W-CONT-NAME
+                    MOVE LENGTH OF W-LCTFM001 TO W-CONT-LENGTH
+                    SET W-CONT-POINTER TO ADDRESS OF W-LCTFM003
+
+                    PERFORM R920-PUT-CONTAINER
+
+                    EXEC CICS
+                       LINK PROGRAM('CTFC003') CHANNEL(C-CHNL-NAME-LWW)
+                    END-EXEC
+
+                    MOVE C-CHNL-NAME-LWW    TO W-CHNL-NAME
+                    MOVE C-CONT-NAME-LWW-03 TO W-CONT-NAME
+
+                    PERFORM R910-GET-CONTAINER
+
+                    IF SW-CONT-FOUND
+                       SET ADDRESS OF P-CHAR TO W-CONT-POINTER
+                       MOVE P-CHAR(1:W-CONT-LENGTH) TO W-LCTFM003
+                    ELSE
+                          MOVE '12' TO RETURNCODE OF W-LCTFM003
+                    END-IF
 
                     IF RETURNCODE OF W-LCTFM003 NOT = '00'
                        DISPLAY 'CTFW002 CTFM003 '

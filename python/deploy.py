@@ -32,16 +32,13 @@ data = {
     "target": "DEPLOY_ALL",
     "homedir": Path.home(),
     "srchlq": f"{os.getlogin()}.CTF2026",
-    "tgthlq": "YINCIC.CPSM.CIC3WB02.CTF2026",
+    "tgthlq": "YINCIC.CPSM.CIC3WB01.CTF2026",
     "gitdir": os.getcwd(),
     "zmake_file": zmake_file
 }
 
 if len(sys.argv) > 1:
     data["target"] = sys.argv[1]
-if len(sys.argv) > 2:
-    data["env"] = sys.argv[2].upper()
-    data["envl"] = sys.argv[2].lower()
 
 jcl = jcl_template.render(data)
 
