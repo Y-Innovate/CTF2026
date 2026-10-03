@@ -5,6 +5,8 @@ from Globals import Globals
 class MyRequests:
     @classmethod
     def getBearerToken(cls, uri):
+        Globals.uri = uri
+
         data = {}
         data["username"] = Globals.myCreds[0]
         data["password"] = Globals.myCreds[1]
@@ -40,15 +42,21 @@ class MyRequests:
             datajson = json.dumps(data)
 
         if Globals.myBearer != "":
-            headers = {'Authorization': f"Bearer {Globals.myBearer}"}
+            for i in range(0, 2):
+                headers = {'Authorization': f"Bearer {Globals.myBearer}"}
 
-            if data != None:
-                resp = Globals.s.request(method, requrl, headers=headers, data=datajson)
-            else:
-                if files != None:
-                    resp = Globals.s.request(method, requrl, headers=headers, files=files)
+                if data != None:
+                    resp = Globals.s.request(method, requrl, headers=headers, data=datajson)
                 else:
-                    resp = Globals.s.request(method, requrl, headers=headers)
+                    if files != None:
+                        resp = Globals.s.request(method, requrl, headers=headers, files=files)
+                    else:
+                        resp = Globals.s.request(method, requrl, headers=headers)
+
+                if resp.status_code < 400 or resp.status_code >= 500 or i > 0:
+                    break
+                else:
+                    cls.getBearerToken(Globals.uri)
         else:
             if data != None:
                 resp = Globals.s.request(method, requrl, auth=Globals.myCreds, data=datajson)

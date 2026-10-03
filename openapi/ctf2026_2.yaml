@@ -172,6 +172,55 @@ paths:
               - JSONWriter:
                   responseObject:
                     $ref: "#/paths/~1detectives/post/x-LWWProcessingSteps/4/Condition/LWWProcessingStepsWhenFalse/0/CreateObject"
+  /hints:
+    get:
+      x-LWWProcessingSteps:
+        - ServicePathRequestVariables:
+            variables:
+              $ref: "ctf2026_1.yaml/paths/~1hints/get/parameters"
+        - AllocateIOArea:
+            name: LCTFC101
+            initWith: 0x00
+            size: 544
+            fields:
+              $ref: "#/components/x-ioareas/LCTFC101/fields"
+        - Mapping:
+            from:
+              $ref: "#/paths/~1hints/get/x-LWWProcessingSteps/0/ServicePathRequestVariables/variables"
+            to:
+              $ref: "#/paths/~1hints/get/x-LWWProcessingSteps/1/AllocateIOArea/fields"
+            combinations:
+              - type: singleFields
+                fromName: hintCode
+                toName: FRAGMENT
+              - type: generated
+                genEnum: 1
+                toName: USERID
+        - Link:
+            program: CTFC101
+            passDataWith: container
+            in:
+              - containerName: LWW-LINK-PAR-03
+                $ref: "#/paths/~1hints/get/x-LWWProcessingSteps/1/AllocateIOArea"
+            out:
+              - containerName: LWW-LINK-PAR-03
+                $ref: "#/paths/~1hints/get/x-LWWProcessingSteps/1/AllocateIOArea"
+        - CreateObject:
+            name: CTFM101_GET_RET
+            properties:
+              $ref: "ctf2026_1.yaml/components/schemas/HintsResponse/properties"
+        - Mapping:
+            from:
+              $ref: "#/paths/~1hints/get/x-LWWProcessingSteps/1/AllocateIOArea/fields"
+            to:
+              $ref: "#/paths/~1hints/get/x-LWWProcessingSteps/4/CreateObject/properties"
+            combinations:
+              - type: singleFields
+                fromName: HINT
+                toName: hintText
+        - JSONWriter:
+            responseObject:
+              $ref: "#/paths/~1hints/get/x-LWWProcessingSteps/4/CreateObject"
   /sqlquery:
     post:
       x-LWWProcessingSteps:
@@ -296,6 +345,17 @@ components:
             - name: POINTS
               type: UI4
               length: 4
+    LCTFC101:
+      fields:
+        - name: USERID
+          type: CHARARRAY1200
+          length: 8
+        - name: FRAGMENT
+          type: CHARARRAY1200
+          length: 8
+        - name: HINT
+          type: VARCHAR1200
+          length: 255
     LCTFM001:
       fields:
         - name: OPCODE

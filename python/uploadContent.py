@@ -12,11 +12,12 @@ from pathlib import Path
 from Globals import Globals
 from MyRequests import MyRequests
 
-Globals.myHost = "https://yinhdisv:8081"
-#Globals.myHost = "https://mainframeyin:8092"
+#Globals.myHost = "https://yinhdisv-1:8082"
+Globals.myHost = "https://mainframeyin:8092"
 Globals.myBasepath = ""
-Globals.myCreds = ('','')
-#Globals.myCreds = ('','')
+#Globals.myCreds = ('YBTKS','YINPASS$')
+Globals.myCreds = ('YBTKS','LWWPASS')
+Globals.myDebug = 0
 Globals.s = requests.sessions.Session()
 
 if Globals.myCreds[0] == '':
@@ -132,7 +133,7 @@ def uploadFile(f, id, parentId, custom, found):
     mediaType = "text/plain"
 
     if x:
-        if (x.group(1) == "js"):
+        if (x.group(1) == "js" or x.group(1) == "jsx"):
             mediaType = "text/javascript"
         elif (x.group(1) == "png"):
             mediaType = "image/png"
@@ -219,19 +220,39 @@ def uploadFile(f, id, parentId, custom, found):
     if Globals.myDebug > 0:
         print(f"{resppost.status_code} {resppost.text}")
 
+def deleteFile(id, fileName):
+    print(f"Delete file {id} {fileName}")
+
+    respdelete = MyRequests.delete(f"/LWWAPI/Admin/files/{id}")
+
+    if respdelete.status_code >= 400 and respdelete.status_code != 404:
+        raise Exception(f'status code {str(respdelete.status_code)} {respdelete.text}')
+
+    if Globals.myDebug > 0:
+        print(f"{respdelete.status_code} {respdelete.text}")
+
 def doDir(someDir, parentId, folderHash):
     global commitHash
     global dir
     global workingTreeUpdates
     global workingTreeUpdatesDirs
+    global workingTreeDeletes
+    global workingTreeDeletesDirs
     global neededDirs
 
     respget = MyRequests.get(f"/LWWAPI/Admin/files?folderId={parentId}")
 
-    if respget.status_code != 200:
-        raise Exception(f"{respget.status_code} {respget.text}")
+    jsonresp = ""
 
-    folderContents = json.loads(respget.text)
+    if respget.status_code == 200:
+        jsonresp = respget.text
+    else:
+        if respget.status_code == 404:
+            jsonresp = '{"folderContents":[]}'
+        else:
+            raise Exception(f"{respget.status_code} {respget.text}")
+    
+    folderContents = json.loads(jsonresp)
     
     #print(folderContents)
 
@@ -274,6 +295,27 @@ def doDir(someDir, parentId, folderHash):
             subdir = subdir + x.group(4)
             gitFolders.append({ "folderName": x.group(4), "hash": x.group(3), "dir": subdir })
 
+    for neededDir in neededDirs:
+        x = neededDir.rfind("/")
+
+        if x < 0:
+            folderName = neededDir
+            parentDir = dir
+        else:
+            folderName = neededDir[x+1:]
+            parentDir = f"{dir}/{neededDir[:x]}"
+
+        if parentDir == someDir:
+            found = False
+
+            for d in gitFolders:
+                if d['folderName'] == folderName:
+                    found = True
+                    break
+
+            if not found:
+                gitFolders.append({ "folderName": folderName, "hash": "", "dir": neededDir })
+
     for n in range(0, len(workingTreeUpdates)):
         if someDir == workingTreeUpdatesDirs[n]:
             x = workingTreeUpdates[n].rfind("/")
@@ -293,6 +335,8 @@ def doDir(someDir, parentId, folderHash):
             
             if not found:
                 gitFiles.append({ "fileName": fileName, "hash": None, "relpath": relpath })
+
+    gitFiles = [f for f in gitFiles if f['relpath'] not in workingTreeDeletes]
 
     # print(gitFiles)
 
@@ -315,6 +359,22 @@ def doDir(someDir, parentId, folderHash):
 
                 uploadFile(f"{someDir}/{f['fileName']}", id, parentId, f['hash'], found)
     
+    for n in range(0, len(workingTreeDeletes)):
+        if someDir == workingTreeDeletesDirs[n]:
+            relpath = workingTreeDeletes[n]
+
+            x = relpath.rfind("/")
+
+            if x < 0:
+                fileName = relpath
+            else:
+                fileName = relpath[x+1:]
+
+            for c in folderContents['folderContents']:
+                if c['fileType'] != 'subfolder' and c['fileName'] == fileName:
+                    deleteFile(c['fileId'], fileName)
+                    break
+
     # print(gitFolders)
 
     for d in gitFolders:
@@ -358,7 +418,7 @@ outGitLog = rsltGitLog.stdout.decode(encoding='utf-8').splitlines()
 commitHash = outGitLog[0]
 
 # cmdline = "/bin/bash -c 'comm -23 <(git ls-files -o -m --exclude-standard | sort) <(git ls-files -d | sort)'"
-cmdline = f"git -C '{dir}' status -s -- . | egrep '^[A|M] ' | cut -c 4-"
+cmdline = f"git -C '{dir}' status -s -- ."
 
 rsltWorkTree = subprocess.run([cmdline], shell=True, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -367,36 +427,79 @@ if rsltWorkTree.returncode:
     print(rsltWorkTree.stderr)
     sys.exit(f"ls-files returned {rsltWorkTree.returncode}")
 
-workingTreeUpdates = rsltWorkTree.stdout.decode(encoding='utf-8').splitlines()
-workingTreeUpdatesDirs = []
+outWorkTree = rsltWorkTree.stdout.decode(encoding='utf-8').splitlines()
+
+workingTreeUpdates = []
+workingTreeDeletes = []
+
+for line in outWorkTree:
+    status = line[:2]
+    path = line[3:]
+
+    if "D" in status:
+        workingTreeDeletes.append(path)
+    elif "A" in status or "M" in status:
+        workingTreeUpdates.append(path)
 
 #print(workingTreeUpdates)
+#print(workingTreeDeletes)
 
 neededDirs = []
 
-for m in range(0, len(workingTreeUpdates)):
-    f = workingTreeUpdates[m]
+def computeDirsList(paths):
+    result = []
 
-    parts = f.split('/')
+    for f in paths:
+        parts = f.split('/')
 
-    combinedParts = ""
+        combinedParts = ""
 
-    for n in range(0, len(parts)-1):
-        if combinedParts == "":
-            combinedParts = parts[n]
+        for n in range(0, len(parts)-1):
+            if combinedParts == "":
+                combinedParts = parts[n]
+            else:
+                combinedParts = f"{combinedParts}/{parts[n]}"
+
+            if not combinedParts in neededDirs:
+                neededDirs.append(combinedParts)
+
+        if (combinedParts == ""):
+            result.append(f"{dir}")
         else:
-            combinedParts = f"{combinedParts}/{parts[n]}"
-        
-        if not combinedParts in neededDirs:
-            neededDirs.append(combinedParts)
-    
-    if (combinedParts == ""):
-        workingTreeUpdatesDirs.append(f"{dir}")
-    else:
-        workingTreeUpdatesDirs.append(f"{dir}/{combinedParts}")
+            result.append(f"{dir}/{combinedParts}")
+
+    return result
+
+workingTreeUpdatesDirs = computeDirsList(workingTreeUpdates)
+workingTreeDeletesDirs = computeDirsList(workingTreeDeletes)
 
 #print(workingTreeUpdatesDirs)
+#print(workingTreeDeletesDirs)
 
 #print(neededDirs)
+
+rootSubDir = "CTF2026"
+rootSubDirID = "FL000000"
+
+respget = MyRequests.get(f"/LWWAPI/Admin/folders/{rootSubDirID}")
+
+if respget.status_code == 404:
+    data = {}
+    data['folderId'] = rootSubDirID
+    data['parentFolderId'] = "ROOT"
+    data['folderName'] = rootSubDir
+    data['path'] = f"/{rootSubDir}"
+    data['generateId'] = "N"
+
+    if Globals.myDebug > 0:
+        print(f"{data['folderId']} {data['folderName']}")
+
+    resppost = MyRequests.post("/LWWAPI/Admin/folders", data)
+
+    if (resppost.status_code >= 400):
+        raise Exception('status code ' + str(resppost.status_code))
+
+    if Globals.myDebug > 0:
+        print(f"\n{resppost.status_code} {resppost.text}")
 
 doDir(dir, "FL000000", "")

@@ -59,6 +59,36 @@ paths:
           description: Unexpected error
       x-LWWProcessingSteps:
         $ref: "ctf2026_2.yaml/paths/~1detectives/post/x-LWWProcessingSteps"
+  /hints:
+    summary: Retrieve hints
+    get:
+      summary: Retrieve hints
+      tags:
+        - retrieve
+      parameters:
+        - name: hintCode
+          in: query
+          description: Hint to retrieve
+          required: true
+          schema:
+            $ref: "#/components/schemas/hintCode"
+      responses:
+        '200':
+          description: Successful retrieval of a hint
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HintsResponse"
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+        default:
+          description: Unexpected error
+      x-LWWProcessingSteps:
+        $ref: "ctf2026_2.yaml/paths/~1hints/get/x-LWWProcessingSteps"
   /sqlquery:
     summary: Execute an SQL query
     post:
@@ -175,6 +205,11 @@ components:
           $ref: "#/components/schemas/reasonCode"
         infoMessage:
           $ref: "#/components/schemas/infoMessage"
+    HintsResponse:
+      type: object
+      properties:
+        hintText:
+          $ref: "#/components/schemas/hintText"
     SQLQueryRequestPost:
       type: object
       properties:
@@ -262,3 +297,13 @@ components:
       minLength: 26
       maxLength: 26
       example: 2026-01-01 12:00:00.000000
+    hintCode:
+      type: string
+      minLength: 1
+      maxLength: 8
+      example: INTRO
+    hintText:
+      type: string
+      minLength: 1
+      maxLength: 256
+      example: sample hint text
