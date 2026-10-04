@@ -136,7 +136,13 @@
                              MOVE 'Y' TO W-SUSPECT-ANSWER1
                           END-IF
                        WHEN W-FF-NAME(1:16) = 'answer_suspect_2'
-                          CONTINUE
+                          IF   W-FF-VALUELEN = 40
+                          AND (W-FF-VALUE(1:40) = 'bbf681b9c4bf3f8b8dd05
+      -    'df5caf2fd2cac075a79'
+                          OR   W-FF-VALUE(1:40) = 'BBF681B9C4BF3F8B8DD05
+      -    'DF5CAF2FD2CAC075A79')
+                             MOVE 'Y' TO W-SUSPECT-ANSWER2
+                          END-IF
                        WHEN W-FF-NAME(1:16) = 'answer_suspect_3'
                           CONTINUE
                     END-EVALUATE
@@ -193,7 +199,14 @@
 
               IF RETURNCODE OF W-LCTFM001 = N'00'
                  MOVE W-USERID TO USERID OF W-LCTFM003
-                 MOVE 'SUSPECT1' TO FRAGMENT OF W-LCTFM003
+                 EVALUATE TRUE
+                 WHEN W-SUSPECT-ANSWER1 = 'Y'
+                    MOVE 'SUSPECT1' TO FRAGMENT OF W-LCTFM003
+                 WHEN W-SUSPECT-ANSWER2 = 'Y'
+                    MOVE 'SUSPECT2' TO FRAGMENT OF W-LCTFM003
+                 WHEN W-SUSPECT-ANSWER3 = 'Y'
+                    MOVE 'SUSPECT3' TO FRAGMENT OF W-LCTFM003
+                 END-EVALUATE
                  MOVE 'P' TO POSNEG OF W-LCTFM003
 
                  MOVE 'R' TO OPCODE OF W-LCTFM003

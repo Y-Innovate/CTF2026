@@ -117,7 +117,7 @@
                 WITH POINTER HINT-LEN OF W-LCTFC101
               SUBTRACT 1 FROM HINT-LEN OF W-LCTFC101
 
-              MOVE -5 TO POINTS OF LCTFM003
+              MOVE -5 TO POINTS OF W-LCTFM003
 
            WHEN N'SUSPECT1'
               MOVE 1 TO HINT-LEN OF W-LCTFC101
@@ -129,7 +129,18 @@
                 WITH POINTER HINT-LEN OF W-LCTFC101
               SUBTRACT 1 FROM HINT-LEN OF W-LCTFC101
 
-              MOVE -5 TO POINTS OF LCTFM003
+              MOVE -5 TO POINTS OF W-LCTFM003
+           
+           WHEN N'SUSPECT2'
+              MOVE 1 TO HINT-LEN OF W-LCTFC101
+              STRING N'Maybe the certificate CN is also a TS queue'
+                     N' name.'
+                     DELIMITED BY SIZE
+                INTO HINT-TEXT OF W-LCTFC101
+                WITH POINTER HINT-LEN OF W-LCTFC101
+              SUBTRACT 1 FROM HINT-LEN OF W-LCTFC101
+
+              MOVE -5 TO POINTS OF W-LCTFM003
            END-EVALUATE
 
            IF HINT-LEN OF W-LCTFC101 > 0
