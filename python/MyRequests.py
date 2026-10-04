@@ -8,27 +8,38 @@ class MyRequests:
         Globals.uri = uri
 
         data = {}
-        data["username"] = Globals.myCreds[0]
-        data["password"] = Globals.myCreds[1]
-
-        requrl = Globals.myHost + uri
+        if (isinstance(Globals.myCreds, tuple)):
+            data["username"] = Globals.myCreds[0]
+            data["password"] = Globals.myCreds[1]
+            requrl = Globals.myHost + uri
+        else:
+            data["client_id"] = Globals.myCreds["client_id"]
+            data["client_secret"] = Globals.myCreds["client_secret"]
+            data["scope"] = Globals.myCreds["scope"]
+            data["grant_type"] = Globals.myCreds["grant_type"]
+            requrl = Globals.uri
 
         if Globals.myDebug > 0:
             print("POST " + requrl)
 
-        resppost = Globals.s.post(requrl, data=json.dumps(data))
+        if (isinstance(Globals.myCreds, tuple)):
+            resppost = Globals.s.post(requrl, data=json.dumps(data))
+        else:
+            headers = {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+            resppost = Globals.s.post(requrl, data=data, headers=headers)
 
         if (resppost.status_code == 200):
             if Globals.myDebug > 0:
                 print(resppost.text)
 
-            if Globals.myDebug > 0:
-                print(f"{resppost.status_code} {resppost.text}")
-
             gettoken = json.loads(resppost.text)
 
-            if (gettoken['token']):
+            if ("token" in gettoken):
                 Globals.myBearer = gettoken['token']
+            elif ("access_token" in gettoken):
+                Globals.myBearer = gettoken['access_token']
             else:
                 raise Exception('unknown response')
         else:
@@ -56,6 +67,8 @@ class MyRequests:
                 if resp.status_code < 400 or resp.status_code >= 500 or i > 0:
                     break
                 else:
+                    if Globals.myDebug > 0:
+                        print(f"{resp.status_code} {resp.text}")
                     cls.getBearerToken(Globals.uri)
         else:
             if data != None:
@@ -77,9 +90,6 @@ class MyRequests:
 
         respget = cls.doit("GET", _requrl, data)
         
-        if Globals.myDebug > 0:
-            print(respget.text)
-
         return respget
 
     @classmethod
@@ -90,10 +100,7 @@ class MyRequests:
             print("PUT " + _requrl)
 
         respput = cls.doit("PUT", _requrl, data, files)
-
-        if Globals.myDebug > 0:
-            print(respput.text)
-
+        
         return respput
 
     @classmethod
@@ -104,10 +111,7 @@ class MyRequests:
             print("POST " + _requrl)
 
         resppost = cls.doit("POST", _requrl, data, files)
-
-        if Globals.myDebug > 0:
-            print(resppost.text)
-
+        
         return resppost
 
     @classmethod
@@ -118,8 +122,5 @@ class MyRequests:
             print("DELETE " + _requrl)
 
         respdelete = cls.doit("DELETE", _requrl, data)
-
-        if Globals.myDebug > 0:
-            print(respdelete.text)
 
         return respdelete

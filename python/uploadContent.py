@@ -11,26 +11,31 @@ from getpass import getpass
 from pathlib import Path
 from Globals import Globals
 from MyRequests import MyRequests
+from pathlib import Path
 
-#Globals.myHost = "https://yinhdisv-1:8082"
-Globals.myHost = "https://mainframeyin:8092"
+Globals.myHost = "https://t01.yinhdisv.nl:8081"
+#Globals.myHost = "https://mainframeyin:8092"
+Globals.myAuthHost = "https://login.microsoftonline.com/d7c088c2-6aa0-4e91-bbba-6d611f3c1bf1/oauth2/v2.0/token"
 Globals.myBasepath = ""
-#Globals.myCreds = ('YBTKS','YINPASS$')
-Globals.myCreds = ('YBTKS','LWWPASS')
+#Globals.myCreds = ('YBTKS','')
+with open(f"{Path.home()}/.creds", "r") as credfile:
+    Globals.myCreds = json.load(credfile)
 Globals.myDebug = 0
 Globals.s = requests.sessions.Session()
 
-if Globals.myCreds[0] == '':
-    userid = input("Give your userid: ")
-    Globals.myCreds = (userid,'')
+if isinstance(Globals.myCreds, tuple):
+    if Globals.myCreds[0] == '':
+        userid = input("Give your userid: ")
+        Globals.myCreds = (userid,'')
 
-if Globals.myCreds[1] == '':
-    passwd = getpass("Give your password: ")
-    Globals.myCreds = (Globals.myCreds[0], passwd)
+    if Globals.myCreds[1] == '':
+        passwd = getpass("Give your password: ")
+        Globals.myCreds = (Globals.myCreds[0], passwd)
 
-print("Getting bearer token")
+#print("Getting bearer token")
 
-MyRequests.getBearerToken("/LWWAPI/API/token")
+MyRequests.getBearerToken(Globals.myAuthHost)
+#MyRequests.getBearerToken("/LWWAPI/API/token")
 
 dir = "/home/bobby/Y-Innovate/software/git/CTF2026/content"
 
@@ -56,7 +61,7 @@ def nextFileId():
 
     letter3 = threesix[d]
 
-    return f"LWWAD{letter1}{letter2}{letter3}"
+    return f"FL000{letter1}{letter2}{letter3}"
 
 def createDir(someDir, id, parentId, custom):
     global dir
@@ -68,11 +73,15 @@ def createDir(someDir, id, parentId, custom):
     x = re.search(".*\\/([^\\/]*)$", someDir)
 
     data = {}
-    data['folderId'] = ""
+    if not id:
+        data['folderId'] = ""
+        data['generateId'] = "Y"
+    else:
+        data['folderId'] = id
+        data['generateId'] = "N"
     data['parentFolderId'] = parentId
     data['folderName'] = x.group(1)
     data['path'] = f"/CTF2026/{someDir[n:]}"
-    data['generateId'] = "Y"
     #data['defaultTran'] = ""
     #data['defaultWebpageId'] = ""
     data['custom'] = custom
@@ -490,6 +499,7 @@ if respget.status_code == 404:
     data['folderName'] = rootSubDir
     data['path'] = f"/{rootSubDir}"
     data['generateId'] = "N"
+    data['defaultTran'] = "FL01"
 
     if Globals.myDebug > 0:
         print(f"{data['folderId']} {data['folderName']}")
